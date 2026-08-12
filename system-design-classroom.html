@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<title>System Design Classroom</title>
+<style>
+  :root{
+    --ink:#1c2430;
+    --board:#fdfdfb;
+    --board-line:#ececE4;
+    --frame:#2b2118;
+    --frame-light:#4a3826;
+    --side-bg:#161b22;
+    --side-bg2:#1e2530;
+    --accent:#e0793c;
+    --teal:#2f9e8f;
+    --text-dim:#8a93a3;
+    --white:#fdfcf8;
+    --main-bg:#f4f1ea;
+    --card-bg:#ffffff;
+    --card-line:#e5e0d3;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--side-bg);
+  }
+  .app{ display:flex; height:100vh; width:100vw; flex-shrink:0; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar{
+    width:270px; min-width:270px;
+    background:linear-gradient(180deg,var(--side-bg) 0%, var(--side-bg2) 100%);
+    color:var(--white);
+    display:flex; flex-direction:column;
+    overflow-y:auto;
+    border-right:1px solid #2a3240;
+  }
+  .brand{ padding:22px 20px 14px 20px; border-bottom:1px solid #2a3240; }
+  .handle-badge{
+    display:inline-block; padding:4px 12px; margin-bottom:10px;
+    background:linear-gradient(90deg,#6a5ce0,#8a6ff0); color:#fff;
+    font-size:11.5px; font-weight:800; letter-spacing:.02em; border-radius:20px;
+  }
+  .brand-title{ font-size:19px; font-weight:800; letter-spacing:-0.01em; line-height:1.25; }
+  .brand-sub{ font-size:12px; color:var(--text-dim); margin-top:6px; line-height:1.5; }
+  .level-tag{
+    display:inline-block; margin-top:10px; padding:3px 9px;
+    background:rgba(47,158,143,0.18); border:1px solid rgba(47,158,143,0.5);
+    color:#5fd6c4; font-size:10.5px; font-weight:700; letter-spacing:.06em;
+    border-radius:20px; text-transform:uppercase;
+  }
+  .curriculum-label{
+    padding:16px 20px 4px 20px; font-size:11px; font-weight:800; letter-spacing:.1em;
+    color:var(--text-dim); text-transform:uppercase;
+  }
+  .part-block{ padding:10px 12px 8px 12px; }
+  .series-block{
+    padding:10px 4px 10px 4px; margin:6px 2px 4px 2px;
+  }
+  .series-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; cursor:pointer; }
+  .series-row{ display:flex; align-items:flex-start; gap:11px; min-width:0; }
+  .series-badge{
+    flex:0 0 auto; width:28px; height:28px; border-radius:50%; margin-top:1px;
+    border:1.5px solid #6a5ce0; color:#a99bf5; font-size:12px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .part-block.locked .series-badge{ border-color:#2a3240; color:var(--text-dim); }
+  .series-text{ min-width:0; }
+  .series-chevron{
+    background:transparent; border:none; color:#7d869a; padding:2px; margin-top:1px;
+    flex:0 0 auto; cursor:pointer; display:flex; transition:transform .18s ease;
+  }
+  .part-block.collapsed .series-chevron{ transform:rotate(-90deg); }
+  .series-chevron svg{ width:15px; height:15px; }
+  .part-block.collapsed .series-body{ display:none; }
+  .series-title{ font-size:15.5px; font-weight:800; color:var(--white); line-height:1.3; }
+  .series-sub{ font-size:11.5px; color:var(--text-dim); margin-top:3px; line-height:1.4; }
+  .topic-btn{
+    display:flex; align-items:flex-start; gap:10px; width:100%; text-align:left;
+    background:transparent; border:none; color:#c8cedb; padding:11px 10px; border-radius:9px;
+    cursor:pointer; font-size:13.3px; line-height:1.4; margin-bottom:2px;
+    transition:background .15s ease, color .15s ease;
+  }
+  .topic-btn:hover{ background:#242c3a; color:var(--white); }
+  .topic-btn.active{
+    background:linear-gradient(90deg, rgba(106,92,224,0.28), rgba(106,92,224,0.06));
+    color:var(--white); box-shadow:inset 3px 0 0 #8a6ff0;
+  }
+  .topic-num{
+    flex:0 0 auto; min-width:26px; height:26px; padding:0 4px; border-radius:50%;
+    background:transparent; border:1.5px solid #333d4d; color:#9aa4b5;
+    font-size:10px; font-weight:800; display:flex;align-items:center;justify-content:center; margin-top:1px;
+  }
+  .topic-btn.active .topic-num{ background:var(--accent); border-color:var(--accent); color:#221207; }
+  .topic-btn-body{ display:flex; flex-direction:column; gap:2px; }
+  .topic-btn-title{ font-weight:700; }
+  .topic-btn-sub{ font-size:11.5px; color:#7d869a; font-weight:500; line-height:1.35; }
+  .topic-btn.active .topic-btn-sub{ color:#c8cedb; }
+  .part-block.locked .topic-btn{ opacity:.4; cursor:not-allowed; }
+  .sidebar-footer{ margin-top:auto; padding:14px 20px 18px 20px; font-size:11px; color:#5b6376; border-top:1px solid #2a3240; line-height:1.6; }
+
+  /* ===== TOP BAR ===== */
+  .center-col{ flex:1; display:flex; flex-direction:column; min-width:320px; }
+  .topbar{
+    display:flex; align-items:center; gap:14px; padding:12px 24px;
+    background:var(--side-bg2); border-bottom:1px solid #2a3240;
+  }
+  .topbar-title{ color:var(--white); font-weight:700; font-size:15.5px; }
+  .topbar-title .muted{ color:var(--text-dim); font-weight:500; }
+  .spacer{ flex:1; }
+  .wb-toggle{
+    background:var(--teal); color:#06231e; border:none; font-weight:700; font-size:12.5px;
+    padding:9px 15px; border-radius:8px; cursor:pointer; white-space:nowrap;
+    display:flex; align-items:center; gap:6px;
+  }
+  .wb-toggle:hover{ filter:brightness(1.06); }
+
+  /* ===== MAIN CONTENT (notes + interactive + code) ===== */
+  .content{
+    flex:1; overflow-y:auto; background:var(--main-bg);
+    padding:28px 40px 60px 40px;
+  }
+  .content-inner{ max-width:820px; margin:0 auto; }
+  .kicker{ font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--teal); font-weight:800; margin-bottom:6px; }
+  .content h1{ font-size:26px; margin:0 0 16px 0; color:#20261f; letter-spacing:-0.01em; }
+  .notes p{ font-size:14.5px; line-height:1.7; color:#3a3f36; }
+  .notes ul{ padding-left:20px; margin:10px 0; }
+  .notes li{ font-size:14.5px; line-height:1.65; color:#3a3f36; margin-bottom:7px; }
+  .notes code{ background:#eae4d4; color:#8a3f14; padding:1.5px 6px; border-radius:4px; font-size:13px; }
+  .notes .key{ color:#1b1f18; font-weight:700; }
+  .callout{
+    background:#fdf1e7; border-left:3px solid var(--accent); padding:12px 14px; border-radius:6px;
+    font-size:13.5px; color:#6b3d16; margin:16px 0; line-height:1.6;
+  }
+  .plain-box{
+    background:#eaf7f4; border-left:3px solid var(--teal); padding:13px 15px; border-radius:6px;
+    font-size:14px; color:#164f45; margin:0 0 20px 0; line-height:1.65;
+  }
+  .plain-box b{ color:#0d332c; }
+  .mini-diagram{
+    background:#20261f; color:#dbe1ea; font-family:Menlo,Consolas,monospace; font-size:12px;
+    padding:12px 14px; border-radius:8px; overflow-x:auto; margin:12px 0; line-height:1.6;
+  }
+  .figure{ margin:16px 0; }
+  .figure .figure-frame{ background:#fbfaf6; border:1px solid var(--card-line); border-radius:10px; padding:14px; overflow-x:auto; }
+  .figure svg{ display:block; width:100%; height:auto; min-width:520px; }
+  .figure figcaption{ font-size:11.5px; color:#8a8570; margin-top:7px; font-style:italic; line-height:1.5; }
+  .kv-list{ width:100%; border-collapse:collapse; margin:12px 0; }
+  .kv-list td{ font-size:13px; padding:7px 8px; border-bottom:1px solid var(--card-line); vertical-align:top; color:#3a3f36; }
+  .kv-list td:first-child{ font-weight:700; color:#20261f; white-space:nowrap; padding-right:14px; }
+
+  .section-label{
+    display:flex; align-items:center; gap:8px; margin:30px 0 14px 0;
+    font-size:12px; text-transform:uppercase; letter-spacing:.08em; font-weight:800; color:#7a7562;
+  }
+  .section-label::after{ content:""; flex:1; height:1px; background:var(--card-line); }
+
+  /* subtopics */
+  h4.subtopic{
+    font-size:15.5px; color:#20261f; margin:26px 0 8px 0; padding-top:4px; scroll-margin-top:20px;
+    display:flex; align-items:baseline; gap:8px;
+  }
+  h4.subtopic::before{ content:"›"; color:var(--accent); font-weight:800; }
+  h4.subtopic .new-tag{
+    font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:800; color:#164f45;
+    background:#d7f0ea; border:1px solid #2f9e8f; padding:2px 6px; border-radius:5px; vertical-align:middle;
+  }
+  .vec-row{ display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+  .vec-box{
+    background:#fbfaf6; border:1px solid var(--card-line); border-radius:8px; padding:10px 12px; flex:1; min-width:200px;
+  }
+  .vec-box label{ font-size:11.5px; color:#7a7562; font-weight:700; display:block; margin-bottom:5px; }
+
+  .card{
+    background:var(--card-bg); border:1px solid var(--card-line); border-radius:12px;
+    padding:20px 22px; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,0.03);
+  }
+  .card h3{ margin:0 0 4px 0; font-size:15px; color:#20261f; }
+  .card .hint{ font-size:12.5px; color:#8a8570; margin-bottom:14px; }
+
+  /* widget bits */
+  .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  input[type="text"], textarea.wb-input{
+    font-family:inherit; font-size:13.5px; padding:9px 11px; border-radius:8px;
+    border:1px solid #d8d2bf; background:#fbfaf6; color:#20261f; width:100%;
+  }
+  button.action{
+    background:#20261f; color:#fdfcf8; border:none; padding:9px 16px; border-radius:8px;
+    font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap;
+  }
+  button.action.alt{ background:var(--accent); color:#221207; }
+  button.action:hover{ filter:brightness(1.15); }
+
+  .bar-row{ display:flex; align-items:center; gap:10px; margin:8px 0; }
+  .bar-label{ width:110px; font-size:12.5px; color:#4a4638; font-weight:600; flex-shrink:0; }
+  .bar-track{ flex:1; height:16px; background:#eee9da; border-radius:8px; overflow:hidden; }
+  .bar-fill{ height:100%; border-radius:8px; transition:width .25s ease; }
+  .bar-pct{ width:44px; font-size:12px; color:#7a7562; text-align:right; flex-shrink:0; }
+
+  .token-chip{
+    display:inline-block; padding:5px 9px; margin:3px; border-radius:6px;
+    background:#fdf1e7; border:1px solid #e0793c; color:#8a3f14; font-size:12.5px; font-family:Menlo,monospace;
+  }
+  .flip-card{
+    background:#fbfaf5; border:1px solid var(--card-line); border-radius:10px; padding:14px 16px;
+    cursor:pointer; margin-bottom:10px; transition:background .15s ease;
+  }
+  .flip-card:hover{ background:#f4efe0; }
+  .flip-card .fc-title{ font-weight:700; font-size:13.5px; color:#20261f; display:flex; justify-content:space-between; align-items:center;}
+  .flip-card .fc-detail{ font-size:12.8px; color:#6b6250; margin-top:8px; display:none; line-height:1.55; }
+  .flip-card.open .fc-detail{ display:block; }
+  .flip-card .fc-arrow{ transition:transform .15s ease; color:#a89f88; }
+  .flip-card.open .fc-arrow{ transform:rotate(90deg); }
+
+  /* ===== SIDEBAR NAV TABS (Curriculum / Interview Bank) ===== */
+  .nav-toggle{ display:flex; gap:22px; padding:16px 20px 0 20px; border-bottom:1px solid #2a3240; }
+  .nav-tab{
+    padding:0 2px 12px 2px; border:none; border-bottom:2px solid transparent; background:transparent;
+    color:#7d869a; font-size:12.5px; font-weight:700; letter-spacing:.02em; cursor:pointer;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .nav-tab:hover{ color:#c8cedb; }
+  .nav-tab.active{
+    color:var(--accent); border-bottom-color:var(--accent);
+  }
+  .bank-cat-btn{
+    display:flex; justify-content:space-between; align-items:center; width:100%; text-align:left;
+    background:transparent; border:none; color:#c8cedb; padding:10px 12px; border-radius:8px;
+    cursor:pointer; font-size:12.8px; font-weight:600; margin-bottom:2px; gap:8px;
+  }
+  .bank-cat-btn:hover{ background:#242c3a; color:var(--white); }
+  .bank-cat-btn.active{
+    background:linear-gradient(90deg, rgba(106,92,224,0.28), rgba(106,92,224,0.06));
+    color:var(--white); box-shadow:inset 3px 0 0 #8a6ff0; font-weight:700;
+  }
+  .bank-cat-count{
+    flex:0 0 auto; background:#2a3240; color:#9aa4b5; font-size:10px; font-weight:800;
+    padding:2px 8px; border-radius:20px;
+  }
+  .bank-cat-btn.active .bank-cat-count{ background:#8a6ff0; color:#fff; }
+
+  /* ===== INTERVIEW BANK (main content) ===== */
+  .ib-header-row{ display:flex; align-items:flex-start; gap:14px; margin-bottom:18px; }
+  .ib-num-badge{
+    flex:0 0 auto; background:linear-gradient(135deg,#6a5ce0,#8a6ff0); color:#fff; font-weight:800;
+    font-size:19px; width:50px; height:50px; border-radius:13px; display:flex; align-items:center;
+    justify-content:center;
+  }
+  .ib-header-text h1{ margin:0 0 3px 0; }
+  .ib-subtitle{ font-size:13px; color:#7a7562; margin:0; line-height:1.5; }
+  .ib-toolbar{ display:flex; align-items:center; gap:10px; margin:20px 0 22px 0; flex-wrap:wrap; }
+  .ib-search{
+    flex:1; min-width:200px; font-size:13.5px; padding:10px 14px; border-radius:9px;
+    border:1px solid #d8d2bf; background:#fff; color:#20261f;
+  }
+  .ib-shown{ font-size:12px; color:#8a8570; white-space:nowrap; }
+  .ib-btn{
+    background:#fff; border:1px solid #d8d2bf; color:#20261f; font-size:12.3px; font-weight:700;
+    padding:9px 14px; border-radius:9px; cursor:pointer; white-space:nowrap;
+  }
+  .ib-btn:hover{ background:#f4efe0; }
+  .ib-card{
+    background:var(--card-bg); border:1px solid var(--card-line); border-radius:12px;
+    padding:18px 20px; margin-bottom:14px; box-shadow:0 1px 3px rgba(0,0,0,0.03);
+  }
+  .ib-card-top{ display:flex; justify-content:space-between; align-items:center; }
+  .ib-badge{
+    display:inline-block; background:#efe9fb; color:#5a3fb0; font-size:10px; font-weight:800;
+    letter-spacing:.04em; text-transform:uppercase; padding:4px 10px; border-radius:20px;
+  }
+  .ib-num{ font-size:12px; color:#a89f88; font-weight:600; }
+  .ib-roles{ margin:9px 0 2px 0; display:flex; flex-wrap:wrap; gap:5px; }
+  .ib-question{ font-size:15px; font-weight:700; color:#20261f; margin:9px 0 13px 0; line-height:1.42; }
+  .ib-show-btn{
+    background:#fff; border:1px solid #6a5ce0; color:#5a3fb0; font-weight:700; font-size:12.3px;
+    padding:8px 16px; border-radius:8px; cursor:pointer;
+  }
+  .ib-show-btn:hover{ background:#efe9fb; }
+  .ib-answer{
+    display:none; margin-top:14px; padding-top:14px; border-top:1px dashed var(--card-line);
+    font-size:13.3px; color:#4a4638; line-height:1.65;
+  }
+  .ib-answer.show{ display:block; }
+  .ib-answer .key{ color:#8a3f14; font-weight:700; }
+  .ib-empty{ font-size:13px; color:#8a8570; padding:20px 0; }
+  .role-chip{
+    font-size:9.5px; font-weight:800; padding:2.5px 8px; border-radius:20px;
+    text-transform:uppercase; letter-spacing:.03em; white-space:nowrap;
+  }
+  .role-chip.rc-agentic{ background:#efe9fb; color:#5a3fb0; border:1px solid #b6a2ef; }
+  .role-chip.rc-consultant{ background:#eaf7f4; color:#164f45; border:1px solid #2f9e8f; }
+  .role-chip.rc-llmops{ background:#fdf1e7; color:#8a3f14; border:1px solid #e0793c; }
+  .role-chip.rc-fde{ background:#e8f0fb; color:#1a4a8a; border:1px solid #7fa4e0; }
+  .role-chip.rc-support{ background:#fbeaea; color:#8a2020; border:1px solid #d99a9a; }
+  .role-chip.rc-fresher{ background:#fff6e0; color:#8a6a10; border:1px solid #e0c060; }
+
+  .stage-card{
+    display:inline-block; width:31%; min-width:190px; vertical-align:top;
+    background:#fbfaf5; border:1px solid var(--card-line); border-radius:10px; padding:14px; margin:0 1% 12px 0;
+    cursor:pointer;
+  }
+  .stage-card h4{ margin:0 0 6px 0; font-size:13.5px; color:#20261f; }
+  .stage-card p{ font-size:12px; color:#7a7562; margin:0; line-height:1.5; }
+  .stage-card .fix{ display:none; font-size:12px; color:#8a3f14; margin-top:8px; line-height:1.5; }
+  .stage-card.open .fix{ display:block; }
+
+  /* code playground */
+  .code-editor{
+    width:100%; min-height:120px; background:#161b22; color:#dbe1ea; font-family:Menlo,Consolas,monospace;
+    font-size:12.8px; line-height:1.55; border:none; border-radius:8px; padding:14px; resize:vertical;
+  }
+  .code-toolbar{ display:flex; justify-content:space-between; align-items:center; margin-top:10px; }
+  .code-output{
+    margin-top:10px; background:#0d1117; color:#8bd18b; font-family:Menlo,Consolas,monospace; font-size:12.5px;
+    padding:12px 14px; border-radius:8px; min-height:20px; white-space:pre-wrap; display:none;
+  }
+  .code-output.error{ color:#ff9a8b; }
+  .code-output.show{ display:block; }
+
+  /* framework-link cards */
+  .fw-card{ border-color:#e0d4f5; background:#fbfaff; }
+  .fw-badge{
+    display:inline-flex; align-items:center; padding:4px 11px; border-radius:20px;
+    background:#efe9fc; color:#5b3fa8; font-size:10px; font-weight:800;
+    letter-spacing:.05em; text-transform:uppercase; margin-bottom:10px;
+  }
+  .fw-card h3{ margin:0 0 8px 0; }
+  .fw-blurb{ font-size:13.5px; color:#4a4638; line-height:1.65; margin:0 0 14px 0; }
+  .fw-codebox{ background:#161b22; border-radius:9px; overflow:hidden; margin-bottom:2px; }
+  .fw-codebox-header{
+    display:flex; align-items:center; justify-content:space-between; padding:8px 14px;
+    font-family:Menlo,Consolas,monospace; font-size:11px; color:#7d869a;
+    border-bottom:1px solid #2a3240;
+  }
+  .fw-codebox pre{
+    margin:0; padding:14px; font-family:Menlo,Consolas,monospace; font-size:12.3px; line-height:1.6;
+    color:#dbe1ea; overflow-x:auto; white-space:pre;
+  }
+
+  /* ===== WHITEBOARD PANEL (repositioned here) ===== */
+  .wb-panel{
+    width:0; overflow:hidden; flex-shrink:0; background:var(--frame);
+    display:flex; flex-direction:column; transition:width .22s ease;
+  }
+  .wb-panel.resizing{ transition:none; }
+  .wb-panel.open{ width:min(68vw, 980px); }
+  .resize-handle{
+    display:none; width:10px; flex:0 0 auto; cursor:col-resize; position:relative;
+    background:var(--side-bg); z-index:20;
+  }
+  .resize-handle.active{ display:flex; align-items:center; justify-content:center; }
+  .resize-handle span{
+    width:3px; height:44px; border-radius:3px; background:#3a4356; transition:background .15s ease;
+  }
+  .resize-handle:hover span, .resize-handle.dragging span{ background:#8a6ff0; }
+  .resize-handle.dragging{ background:#12151b; }
+  .wb-panel-inner{ width:100%; height:100%; display:flex; flex-direction:column; padding:14px; }
+  .wb-toolbar{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px;
+  }
+  .swatch{ width:20px;height:20px; border-radius:50%; cursor:pointer; border:2px solid transparent; }
+  .swatch.selected{ border-color:#fff; transform:scale(1.15); }
+  .mini-group{ display:flex; align-items:center; gap:6px; background:#1e2530; padding:5px 8px; border-radius:8px; }
+  .mini-btn{
+    background:#232b38; border:1px solid #333d4d; color:#dbe1ea; font-size:11.5px; font-weight:600;
+    padding:6px 10px; border-radius:7px; cursor:pointer; white-space:nowrap;
+  }
+  .mini-btn:hover{ background:#2c3646; }
+  .mini-btn.active{ background:var(--accent); color:#221207; border-color:var(--accent); }
+  .size-range{ width:56px; accent-color:var(--accent); }
+  .board-frame{
+    flex:1; border-radius:10px; overflow:hidden; position:relative;
+    box-shadow:0 10px 26px rgba(0,0,0,0.35);
+  }
+  .board{
+    position:absolute; inset:0; background:var(--board);
+    background-image:linear-gradient(var(--board-line) 1px, transparent 1px), linear-gradient(90deg, var(--board-line) 1px, transparent 1px);
+    background-size:30px 30px;
+  }
+  .board canvas{ position:absolute; top:0; left:0; width:100%; height:100%; touch-action:none; cursor:crosshair; }
+  .wb-caption{ color:#7d8798; font-size:11px; margin-top:8px; text-align:center; }
+
+  @media (max-width:1100px){
+    .sidebar{ width:220px; min-width:220px; }
+    .wb-panel.open{ width:min(75vw, 620px); }
+  }
+
+  /* ================= LANDING SECTIONS (below the app) ================= */
+  .landing{ background:var(--side-bg); color:var(--white); }
+  .landing-section{ padding:70px 40px; max-width:1180px; margin:0 auto; }
+  .landing-eyebrow{
+    display:flex; align-items:center; gap:8px; font-size:12px; font-weight:800;
+    letter-spacing:.1em; text-transform:uppercase; color:#8a6ff0; margin-bottom:14px;
+  }
+  .landing-eyebrow::before{ content:""; width:6px; height:6px; border-radius:50%; background:#8a6ff0; }
+  .landing-h2{ font-size:34px; font-weight:800; line-height:1.25; margin:0 0 14px 0; letter-spacing:-0.01em; }
+  .landing-h2 .grad{ background:linear-gradient(90deg,#6a5ce0,#8a6ff0); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .landing-sub{ font-size:15px; color:var(--text-dim); max-width:640px; line-height:1.6; margin-bottom:36px; }
+
+  /* Text courses */
+  .course-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:22px; }
+  .course-card{
+    border-radius:14px; padding:26px; min-height:180px; position:relative; overflow:hidden;
+    border:1px solid #2a3240; background:linear-gradient(160deg,#1b2130,#12161f);
+  }
+  .course-card .cc-brand{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:#c8cedb; margin-bottom:14px; }
+  .course-card .cc-brand .dot{ width:16px; height:16px; border-radius:5px; background:linear-gradient(135deg,#6a5ce0,#e0793c); flex:0 0 auto; }
+  .course-card h3{ font-size:24px; line-height:1.25; margin:0 0 6px 0; font-weight:800; }
+  .course-card h3 .accent{ color:#8a6ff0; }
+  .course-card .cc-desc{ font-size:12.5px; color:var(--text-dim); margin-bottom:16px; }
+  .cc-tags{ display:flex; flex-wrap:wrap; gap:8px; }
+  .cc-tag{
+    font-size:10.5px; font-weight:700; color:#c8cedb; background:#242c3a; border:1px solid #2a3240;
+    padding:5px 9px; border-radius:6px;
+  }
+
+  /* Projects */
+  .proj-filter-row{ display:flex; flex-wrap:wrap; gap:9px; margin-bottom:28px; }
+  .proj-filter-btn{
+    font-size:12px; font-weight:700; color:#c8cedb; background:transparent; border:1px solid #333d4d;
+    padding:8px 15px; border-radius:20px; cursor:pointer; transition:all .15s ease;
+  }
+  .proj-filter-btn:hover{ background:#242c3a; }
+  .proj-filter-btn.active{ background:linear-gradient(90deg,#6a5ce0,#8a6ff0); color:#fff; border-color:transparent; }
+  .proj-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:18px; }
+  .proj-card{
+    border-radius:12px; padding:20px; border:1px solid #2a3240; background:linear-gradient(160deg,#1b2130,#12161f);
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .proj-card .pc-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .proj-card h4{ font-size:15px; font-weight:800; margin:0; line-height:1.35; color:var(--white); }
+  .pc-industry{
+    flex:0 0 auto; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.04em;
+    color:#a99bf5; background:#241f3d; border:1px solid #3a2f5c; padding:4px 8px; border-radius:6px; white-space:nowrap;
+  }
+  .proj-card p{ font-size:12.5px; color:var(--text-dim); line-height:1.55; margin:0; flex:1; }
+  .pc-fw{ font-size:10.5px; font-weight:700; color:#7d869a; }
+  .pc-meta-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .pc-level{
+    font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.04em;
+    padding:3px 8px; border-radius:6px; border:1px solid transparent;
+  }
+  .pc-level.beginner{ color:#7fd9b6; background:#123128; border-color:#1e5c47; }
+  .pc-level.intermediate{ color:#f0c674; background:#3a2c12; border-color:#5c4a1e; }
+  .pc-level.advanced{ color:#f0937a; background:#3a1f1a; border-color:#5c2f22; }
+  .proj-filter-row.level-row{ margin-bottom:20px; }
+  .proj-filter-btn.level-btn.beginner.active{ background:linear-gradient(90deg,#1e5c47,#2f9e8f); }
+  .proj-filter-btn.level-btn.intermediate.active{ background:linear-gradient(90deg,#8a5a1e,#e0793c); }
+  .proj-filter-btn.level-btn.advanced.active{ background:linear-gradient(90deg,#7a2f22,#c0463a); }
+  .pc-link{
+    display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; color:#8a6ff0;
+    text-decoration:none; margin-top:2px;
+  }
+  .pc-link:hover{ color:#a99bf5; }
+  .proj-credit{
+    font-size:12px; color:var(--text-dim); margin-top:30px; padding-top:20px; border-top:1px solid #2a3240;
+  }
+  .proj-credit a{ color:#8a6ff0; text-decoration:none; font-weight:700; }
+  .proj-credit a:hover{ text-decoration:underline; }
+
+  /* Mentor */
+  .mentor-badges{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:34px; }
+  .mentor-badge{
+    display:flex; align-items:center; gap:8px; padding:8px 16px; border-radius:20px;
+    background:#151a23; border:1px solid #2a3240; font-size:13px; font-weight:700; color:#dbe1ea;
+  }
+  .mentor-badge .dot{ width:8px; height:8px; border-radius:50%; background:#2f9e63; }
+  .mentor-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px; }
+  .mentor-card{
+    display:flex; align-items:flex-start; gap:14px; padding:20px; border-radius:12px;
+    background:#151a23; border:1px solid #2a3240;
+  }
+  .mentor-card .icon{
+    width:38px; height:38px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    font-size:17px; flex:0 0 auto; background:rgba(138,111,240,0.15);
+  }
+  .mentor-card .txt{ font-size:14px; font-weight:700; color:#eef0f5; line-height:1.4; }
+
+  /* Free content */
+  .free-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; }
+  .free-card{
+    display:flex; gap:14px; padding:22px; border-radius:12px; background:#151a23; border:1px solid #2a3240;
+    transition:border-color .15s ease, transform .15s ease; cursor:pointer;
+  }
+  .free-card:hover{ border-color:#6a5ce0; transform:translateY(-2px); }
+  .free-card .icon{
+    width:42px; height:42px; border-radius:10px; background:#20261f; background:#1e2530;
+    display:flex; align-items:center; justify-content:center; font-size:19px; flex:0 0 auto;
+  }
+  .free-card h4{ margin:0 0 5px 0; font-size:15.5px; font-weight:800; color:#fff; }
+  .free-card p{ margin:0; font-size:13px; color:var(--text-dim); line-height:1.5; }
+
+  /* Footer */
+  .site-footer{ background:#0c0f14; border-top:1px solid #22283400; padding:60px 40px 0 40px; }
+  .footer-inner{ max-width:1180px; margin:0 auto; }
+  .footer-grid{ display:grid; grid-template-columns:1.6fr 0.8fr 0.8fr 1fr; gap:30px; padding-bottom:40px; }
+  @media (max-width:820px){ .footer-grid{ grid-template-columns:1fr 1fr; } }
+  .footer-brand{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .footer-brand .dot{ width:26px; height:26px; border-radius:7px; background:linear-gradient(135deg,#6a5ce0,#e0793c); }
+  .footer-brand span{ font-size:18px; font-weight:800; color:#fff; }
+  .footer-desc{ font-size:13px; color:var(--text-dim); line-height:1.6; max-width:340px; margin-bottom:16px; }
+  .footer-social{ display:flex; gap:10px; }
+  .footer-social a{
+    width:34px; height:34px; border-radius:8px; background:#161b22; border:1px solid #2a3240;
+    display:flex; align-items:center; justify-content:center; color:#c8cedb; text-decoration:none; font-size:14px;
+  }
+  .footer-col-title{ font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#7d869a; margin-bottom:14px; }
+  .footer-col a{
+    display:block; font-size:13.5px; color:#c8cedb; text-decoration:none; margin-bottom:12px; line-height:1.4;
+  }
+  .footer-col a:hover{ color:#fff; }
+  .footer-discord{
+    background:#151a23; border:1px solid #2a3240; border-radius:14px; padding:22px;
+  }
+  .footer-discord .fd-label{ display:flex; align-items:center; gap:7px; font-size:12px; font-weight:800; color:#8a6ff0; letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px; }
+  .footer-discord p{ font-size:13px; color:#c8cedb; line-height:1.55; margin:0 0 16px 0; }
+  .footer-discord-btn{
+    display:inline-flex; align-items:center; gap:8px; background:linear-gradient(90deg,#6a5ce0,#8a6ff0);
+    color:#fff; font-weight:700; font-size:13.5px; padding:11px 18px; border-radius:9px; text-decoration:none; border:none;
+  }
+  .footer-bottom{
+    border-top:1px solid #1c222c; padding:18px 0 22px 0; display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:10px; font-size:12.5px; color:#5b6376;
+  }
+  .footer-bottom-links{ display:flex; gap:22px; flex-wrap:wrap; }
+  .footer-bottom-links a{ color:#8a93a3; text-decoration:none; }
+  .footer-bottom-links a:hover{ color:#fff; }
+
+  /* ===== 1:1 SUPPORT ===== */
+  .support-card{
+    display:flex; align-items:center; justify-content:space-between; gap:28px; flex-wrap:wrap;
+    background:linear-gradient(135deg, rgba(224,121,60,0.14), rgba(106,92,224,0.10));
+    border:1px solid rgba(224,121,60,0.35); border-radius:16px;
+    padding:28px 30px;
+  }
+  .support-card .sc-left{ flex:1; min-width:260px; }
+  .support-tag{
+    display:inline-block; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+    color:#e0793c; background:rgba(224,121,60,0.14); border:1px solid rgba(224,121,60,0.4);
+    padding:4px 10px; border-radius:20px; margin-bottom:12px;
+  }
+  .support-card h3{ font-size:22px; font-weight:800; color:var(--white); margin:0 0 8px 0; letter-spacing:-0.01em; }
+  .support-card p{ font-size:14px; color:var(--text-dim); line-height:1.6; margin:0; max-width:480px; }
+  .support-actions{ display:flex; gap:12px; flex-wrap:wrap; flex:0 0 auto; }
+  .support-btn{
+    display:inline-flex; align-items:center; gap:8px; text-decoration:none;
+    padding:12px 20px; border-radius:10px; font-size:13.5px; font-weight:800; white-space:nowrap;
+  }
+  .support-btn.primary{ background:linear-gradient(90deg,#6a5ce0,#8a6ff0); color:#fff; }
+  .support-btn.whatsapp{ background:#25D366; color:#06231e; }
+  .support-btn.primary:hover, .support-btn.whatsapp:hover{ filter:brightness(1.08); }
+  .support-btn svg{ width:16px; height:16px; }
+
+  /* ===== TOP NAV ===== */
+  .top-nav{
+    position:sticky; top:0; z-index:200;
+    display:flex; align-items:center; gap:28px;
+    padding:12px 28px; background:#0c0f14; border-bottom:1px solid #22283a;
+  }
+  .top-nav .tn-brand{ display:flex; align-items:center; gap:9px; font-weight:800; color:var(--white); font-size:15px; letter-spacing:-0.01em; margin-right:auto; }
+  .top-nav .tn-brand .dot{ width:8px; height:8px; border-radius:50%; background:linear-gradient(90deg,#6a5ce0,#8a6ff0); flex:0 0 auto; }
+  .top-nav .tn-links{ display:flex; align-items:center; gap:24px; transition:opacity .15s ease; }
+  .top-nav .tn-links a{
+    color:#c8cedb; text-decoration:none; font-size:13.5px; font-weight:600;
+    transition:color .15s ease;
+  }
+  .top-nav .tn-links a:hover{ color:var(--white); }
+  .top-nav.nav-collapsed .tn-links{ display:none; }
+  .nav-toggle-btn{
+    background:transparent; border:1px solid #2a3240; color:#c8cedb; border-radius:8px;
+    width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+    flex:0 0 auto; transition:background .15s ease, transform .2s ease;
+  }
+  .nav-toggle-btn:hover{ background:#1c2430; color:var(--white); }
+  .nav-toggle-btn svg{ width:16px; height:16px; transition:transform .2s ease; }
+  .top-nav.nav-collapsed .nav-toggle-btn svg{ transform:rotate(180deg); }
+  @media (max-width:720px){
+    .top-nav{ gap:14px; padding:10px 14px; flex-wrap:wrap; }
+    .top-nav .tn-links{ gap:14px; }
+  }
+
+  /* ===== TOP NAV — DROPDOWN MENU ===== */
+  .tn-dropdown{ position:relative; }
+  .tn-dd-toggle{
+    display:flex; align-items:center; gap:6px;
+    background:transparent; border:none; padding:0;
+    color:#c8cedb; font-size:13.5px; font-weight:600; font-family:inherit;
+    cursor:pointer; transition:color .15s ease;
+  }
+  .tn-dd-toggle svg{ width:12px; height:12px; transition:transform .18s ease; flex:0 0 auto; }
+  .tn-dropdown:hover .tn-dd-toggle,
+  .tn-dropdown.open .tn-dd-toggle{ color:var(--white); }
+  .tn-dropdown:hover .tn-dd-toggle svg,
+  .tn-dropdown.open .tn-dd-toggle svg{ transform:rotate(180deg); }
+
+  .tn-dd-panel{
+    position:absolute; top:100%; left:50%; transform:translate(-50%,6px);
+    margin-top:14px; min-width:260px;
+    background:#161b22; border:1px solid #2a3240; border-radius:12px;
+    box-shadow:0 18px 38px rgba(0,0,0,.45);
+    padding:8px; opacity:0; visibility:hidden; pointer-events:none;
+    transition:opacity .15s ease, transform .15s ease, visibility .15s ease;
+    z-index:300;
+  }
+  /* Invisible bridge over the gap between the toggle and the panel, so moving
+     the mouse straight down from the button to the panel never leaves a
+     hoverable area (which was previously closing the menu mid-move). */
+  .tn-dd-panel::before{
+    content:''; position:absolute; top:-14px; left:0; right:0; height:14px;
+  }
+  .tn-dropdown:hover .tn-dd-panel,
+  .tn-dropdown.open .tn-dd-panel{
+    opacity:1; visibility:visible; pointer-events:auto; transform:translate(-50%,0);
+  }
+  .tn-dd-item{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 12px; border-radius:8px; text-decoration:none;
+    color:#c8cedb; font-size:13.3px; font-weight:600; line-height:1.35;
+    transition:background .15s ease, color .15s ease; white-space:nowrap;
+  }
+  .tn-dd-item:hover{ background:#242c3a; color:var(--white); }
+  .tn-dd-item.current{
+    background:linear-gradient(90deg, rgba(106,92,224,0.28), rgba(106,92,224,0.06));
+    color:var(--white); box-shadow:inset 3px 0 0 #8a6ff0;
+  }
+  .tn-badge{
+    flex:0 0 auto; font-size:9.5px; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+    color:var(--text-dim); border:1px solid #333d4d; padding:2px 7px; border-radius:20px;
+  }
+  .tn-dd-item.current .tn-badge{ color:#5fd6c4; border-color:rgba(47,158,143,0.5); background:rgba(47,158,143,0.18); }
+
+  /* Nested flyout submenu (e.g. Mentorship inside Projects) */
+  .tn-dd-item.has-sub{ position:relative; padding:0; display:block; }
+  .tn-dd-subtoggle{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:transparent; border:none; padding:10px 12px; border-radius:8px;
+    color:#c8cedb; font-size:13.3px; font-weight:600; font-family:inherit; text-align:left;
+    cursor:pointer; transition:background .15s ease, color .15s ease;
+  }
+  .tn-dd-subtoggle svg{ width:12px; height:12px; flex:0 0 auto; transition:transform .15s ease; }
+  .tn-dd-subtoggle:hover,
+  .has-sub.sub-open .tn-dd-subtoggle{ background:#242c3a; color:var(--white); }
+  .has-sub.sub-open .tn-dd-subtoggle svg{ transform:rotate(90deg); }
+
+  .tn-dd-subpanel{
+    position:absolute; top:0; left:100%; margin-left:8px; min-width:230px;
+    background:#161b22; border:1px solid #2a3240; border-radius:12px;
+    box-shadow:0 18px 38px rgba(0,0,0,.45);
+    padding:8px; opacity:0; visibility:hidden; pointer-events:none;
+    transform:translateX(4px);
+    transition:opacity .15s ease, transform .15s ease, visibility .15s ease;
+  }
+  .has-sub:hover .tn-dd-subpanel,
+  .has-sub.sub-open .tn-dd-subpanel{
+    opacity:1; visibility:visible; pointer-events:auto; transform:translateX(0);
+  }
+
+  @media (max-width:900px){
+    .top-nav .tn-links{ gap:16px; }
+    .tn-dd-panel{ left:0; transform:translate(0,6px); min-width:240px; }
+    .tn-dropdown:hover .tn-dd-panel,
+    .tn-dropdown.open .tn-dd-panel{ transform:translate(0,0); }
+
+    .tn-dd-subpanel{
+      position:static; left:auto; margin-left:0; margin-top:2px; transform:none;
+      box-shadow:none; border:none; border-left:2px solid #333d4d; border-radius:0;
+      padding:2px 0 2px 12px; display:none;
+    }
+    .has-sub:hover .tn-dd-subpanel{ opacity:0; visibility:hidden; pointer-events:none; }
+    .has-sub.sub-open .tn-dd-subpanel{ display:block; opacity:1; visibility:visible; pointer-events:auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== TOP NAV ===== -->
+<nav class="top-nav">
+  <a href="index.html" class="tn-brand" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;"><svg width="32" height="32" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="flex:0 0 auto;" aria-hidden="true"><circle cx="100" cy="100" r="90" fill="none" stroke="#e8e6df" stroke-width="3"/><circle cx="100" cy="100" r="78" fill="none" stroke="#e8e6df" stroke-width="1.4"/><text x="82" y="152" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="140" text-anchor="middle" fill="#f4f1ea">T</text><text x="128" y="152" font-family="Georgia,'Times New Roman',serif" font-weight="700" font-size="140" text-anchor="middle" fill="#e0793c">V</text></svg><span>TechRise With Viveka</span></a>
+  <div class="tn-links">
+
+    <div class="tn-dropdown">
+      <button type="button" class="tn-dd-toggle">Learn
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+      <div class="tn-dd-panel">
+        <a href="index.html" class="tn-dd-item"><span>Agentic AI Classroom</span></a>
+        <a href="system-design-classroom.html" class="tn-dd-item current"><span>System Design Classroom</span><span class="tn-badge">You're here</span></a>
+      </div>
+    </div>
+
+    <div class="tn-dropdown">
+      <button type="button" class="tn-dd-toggle">Projects
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+      <div class="tn-dd-panel">
+        <a href="#interviewPrep" class="tn-dd-item"><span>Interview Prep</span></a>
+        <a href="#projects" class="tn-dd-item"><span>Agentic AI</span></a>
+        <a href="system-design-projects.html" class="tn-dd-item"><span>System Design</span><span class="tn-badge">Coming soon</span></a>
+      </div>
+    </div>
+
+    <div class="tn-dropdown">
+      <button type="button" class="tn-dd-toggle">Mentorship
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+      <div class="tn-dd-panel">
+        <a href="#support1on1" class="tn-dd-item"><span>1:1 Guidance</span></a>
+        <a href="#support1on1" class="tn-dd-item"><span>Resume &amp; ATS Optimization</span></a>
+        <a href="#support1on1" class="tn-dd-item"><span>LinkedIn / Personal Branding</span></a>
+      </div>
+    </div>
+
+    <div class="tn-dropdown">
+      <button type="button" class="tn-dd-toggle">About
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+      <div class="tn-dd-panel">
+        <a href="#about" class="tn-dd-item"><span>Mentor Profile — Viveka Sharma</span></a>
+        <a href="#about" class="tn-dd-item"><span>Connect (LinkedIn, GitHub, Substack, X)</span></a>
+      </div>
+    </div>
+
+  </div>
+  <button class="nav-toggle-btn" id="navToggleBtn" aria-label="Collapse navigation links" title="Collapse navigation links">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+  </button>
+</nav>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="brand">
+      <span class="handle-badge">@AIWithViveka</span>
+      <div class="brand-title">System Design Classroom</div>
+      <div class="brand-sub">A guided, self-paced path through system design — scalability, load balancing, caching, and database scaling explained with plain-English notes, diagrams, and interactive examples. Crafted for interview prep at every level.</div>
+      <span class="level-tag">Series 1 · Beginner</span>
+    </div>
+    <div class="nav-toggle">
+      <button class="nav-tab active" id="tabCurriculum">Curriculum</button>
+      <button class="nav-tab" id="tabBank">Interview Bank</button>
+    </div>
+
+    <div id="curriculumSidebar">
+      <div class="curriculum-label">Curriculum</div>
+      <div class="part-block" id="partI">
+        <div class="series-block">
+          <div class="series-head">
+            <div class="series-row">
+              <div class="series-badge">1</div>
+              <div class="series-text">
+                <div class="series-title">System Design Basics</div>
+                <div class="series-sub">Scalability, load balancing, caching &amp; database scaling — the core building blocks</div>
+              </div>
+            </div>
+            <button class="series-chevron" aria-label="Collapse Series 1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+          </div>
+        </div>
+        <div id="topicListI" class="series-body"></div>
+      </div>
+
+      <div class="part-block locked" id="partII">
+        <div class="series-block">
+          <div class="series-head">
+            <div class="series-row">
+              <div class="series-badge">2</div>
+              <div class="series-text">
+                <div class="series-title">Real-World Case Studies</div>
+                <div class="series-sub">Design YouTube · Netflix · WhatsApp · URL Shortener — coming next</div>
+              </div>
+            </div>
+            <button class="series-chevron" aria-label="Collapse Series 2">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+          </div>
+        </div>
+        <div class="series-body">
+          <button class="topic-btn" disabled><span class="topic-num">–</span><span class="topic-btn-body"><span class="topic-btn-title">Design a URL Shortener</span></span></button>
+          <button class="topic-btn" disabled><span class="topic-num">–</span><span class="topic-btn-body"><span class="topic-btn-title">Design WhatsApp</span></span></button>
+          <button class="topic-btn" disabled><span class="topic-num">–</span><span class="topic-btn-body"><span class="topic-btn-title">Design YouTube / Netflix</span></span></button>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="bankSidebar" style="display:none;">
+      <div class="curriculum-label">Categories · <span id="bankTotalCount">0</span> Questions</div>
+      <div id="bankCatList" style="padding:2px 12px 8px 12px;"></div>
+    </div>
+
+    <div class="sidebar-footer">
+      Content adapted by <span style="color:#c8cedb;">Viveka Sharma</span>.<br><br>
+      Real-world case studies (Series 2) are coming soon.
+    </div>
+  </div>
+
+  <!-- CENTER: NOTES + INTERACTIVE + CODE -->
+  <div class="center-col">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Pick a topic <span class="muted">to begin →</span></div>
+      <div class="spacer"></div>
+      <button class="wb-toggle" id="wbToggle">🖊 Open Whiteboard</button>
+    </div>
+    <div class="content">
+      <div class="content-inner" id="contentInner">
+        <p style="color:#8a8570;">Select a topic from the left to load its notes, an interactive example, and runnable code here.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESIZE HANDLE (drag to resize content vs whiteboard) -->
+  <div class="resize-handle" id="wbResizeHandle" title="Drag to resize"><span></span></div>
+
+  <!-- WHITEBOARD PANEL (moved here) -->
+  <div class="wb-panel" id="wbPanel">
+    <div class="wb-panel-inner">
+      <div class="wb-toolbar">
+        <div class="mini-group" id="colorGroup">
+          <span class="swatch selected" style="background:#1c2430" data-color="#1c2430"></span>
+          <span class="swatch" style="background:#c1442e" data-color="#c1442e"></span>
+          <span class="swatch" style="background:#2166b0" data-color="#2166b0"></span>
+          <span class="swatch" style="background:#2f9e63" data-color="#2f9e63"></span>
+          <span class="swatch" style="background:#e0793c" data-color="#e0793c"></span>
+        </div>
+        <div class="mini-group">
+          <label style="font-size:10.5px;color:#9aa4b5;">Size</label>
+          <input type="range" min="2" max="14" value="4" class="size-range" id="sizeRange">
+        </div>
+        <button class="mini-btn" id="eraserBtn">🧽 Eraser</button>
+        <button class="mini-btn" id="undoBtn">↩ Undo</button>
+        <button class="mini-btn" id="clearBtn">🗑 Clear</button>
+      </div>
+      <div class="board-frame">
+        <div class="board"><canvas id="drawCanvas"></canvas></div>
+      </div>
+      <div class="wb-caption">Plain whiteboard — write freely to explain the concept on the left.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ LANDING SECTIONS (scroll down from the app above) ============ -->
+<div class="landing">
+
+  <!-- TEXT COURSES -->
+  <section class="landing-section" id="textCourses">
+    <div class="landing-eyebrow">Text Courses</div>
+    <h2 class="landing-h2">Learn at Your Own Pace<br><span class="grad">Text &amp; Document Based</span></h2>
+    <p class="landing-sub">Read-along courses with text and document based content — work through it whenever you have ten minutes, no video required.</p>
+    <div class="course-grid">
+      <div class="course-card">
+        <div class="cc-brand"><span class="dot"></span> TechRise With Viveka</div>
+        <h3>Agentic AI <span class="accent">Text Course</span></h3>
+        <div class="cc-desc">From LLM basics to a full multi-agent architecture stack — notes, live examples, and runnable code for every concept.</div>
+        <div class="cc-tags">
+          <span class="cc-tag">LLM Foundations</span>
+          <span class="cc-tag">AI Agents</span>
+          <span class="cc-tag">Agentic Systems</span>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="cc-brand"><span class="dot"></span> TechRise With Viveka</div>
+        <h3>Agentic AI <span class="accent">Interview Prep</span></h3>
+        <div class="cc-desc">Hand-picked interview questions across roles — Agentic AI Dev, LLMOps, AI Support, and AI Consulting — with reasoning behind each answer.</div>
+        <div class="cc-tags">
+          <span class="cc-tag">Role-based Qs</span>
+          <span class="cc-tag">MNC Prep</span>
+          <span class="cc-tag">Self-paced</span>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="cc-brand"><span class="dot"></span> TechRise With Viveka</div>
+        <h3>LLMOps <span class="accent">& Deployment</span></h3>
+        <div class="cc-desc">LLM lifecycle, monitoring &amp; observability for AI systems, and deployment &amp; scaling — the operations side of Generative AI.</div>
+        <div class="cc-tags">
+          <span class="cc-tag">LLM Lifecycle</span>
+          <span class="cc-tag">Monitoring</span>
+          <span class="cc-tag">Deployment</span>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="cc-brand"><span class="dot"></span> TechRise With Viveka</div>
+        <h3>DevOps <span class="accent">& Cloud</span></h3>
+        <div class="cc-desc">Linux administration (L2/L3), CI/CD with Jenkins, Docker &amp; Kubernetes, and Azure cloud infrastructure — grounded in real production ops experience.</div>
+        <div class="cc-tags">
+          <span class="cc-tag">Linux L2/L3</span>
+          <span class="cc-tag">CI/CD</span>
+          <span class="cc-tag">Docker &amp; K8s</span>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="cc-brand"><span class="dot"></span> TechRise With Viveka</div>
+        <h3>Production Support <span class="accent">& Incident Mgmt</span></h3>
+        <div class="cc-desc">Log analysis, root cause analysis, and real incident case studies drawn from production operations experience.</div>
+        <div class="cc-tags">
+          <span class="cc-tag">Log Analysis</span>
+          <span class="cc-tag">RCA</span>
+          <span class="cc-tag">Case Studies</span>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="cc-brand"><span class="dot"></span> TechRise With Viveka</div>
+        <h3>System <span class="accent">Design</span></h3>
+        <div class="cc-desc">System design fundamentals plus real-world case studies: Design YouTube, Design Netflix, Design WhatsApp, and Design a URL Shortener.</div>
+        <div class="cc-tags">
+          <span class="cc-tag">Fundamentals</span>
+          <span class="cc-tag">Case Studies</span>
+          <span class="cc-tag">MNC Prep</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENTOR -->
+  <section class="landing-section" id="mentor">
+    <div class="mentor-header" style="display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap; margin-bottom:36px;">
+      <div style="flex:1 1 380px; min-width:280px;">
+        <div class="landing-eyebrow">Your Mentor</div>
+        <h2 class="landing-h2" style="margin-bottom:14px;">Why Learn from<br><span class="grad">Viveka Sharma?</span></h2>
+        <p class="landing-sub" style="margin-bottom:24px;">Right mentor to make your learning journey faster, easier, and more fun!</p>
+        <div class="mentor-badges" style="margin-bottom:0;">
+          <span class="mentor-badge"><span class="dot"></span> 5+ Years in Production Ops</span>
+          <span class="mentor-badge"><span class="dot"></span> Cloud &amp; DevOps Practitioner</span>
+          <span class="mentor-badge"><span class="dot"></span> Educator — TechInsights with Viveka</span>
+          <span class="mentor-badge"><span class="dot"></span> Community Builder, NCR</span>
+        </div>
+      </div>
+      <div style="flex:0 0 auto; width:220px; max-width:100%;">
+        <img src="data:image/webp;base64,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" alt="Viveka Sharma" style="width:100%; aspect-ratio:3/4; object-fit:cover; border-radius:16px; border:1px solid #2a3240; display:block;">
+      </div>
+    </div>
+    <div class="mentor-grid">
+      <div class="mentor-card"><div class="icon">🧩</div><div class="txt">Simplifies complex concepts effortlessly</div></div>
+      <div class="mentor-card"><div class="icon">⚙️</div><div class="txt">Grounded in real production operations experience</div></div>
+      <div class="mentor-card"><div class="icon">📈</div><div class="txt">Caters from beginners to working engineers</div></div>
+      <div class="mentor-card"><div class="icon">⏳</div><div class="txt">Available even after the course ends</div></div>
+      <div class="mentor-card"><div class="icon">🤝</div><div class="txt">Creates a safe space for students</div></div>
+      <div class="mentor-card"><div class="icon">👁️</div><div class="txt">Provides personalized attention</div></div>
+      <div class="mentor-card"><div class="icon">🎤</div><div class="txt">Runs a live technical content &amp; community series</div></div>
+      <div class="mentor-card"><div class="icon">⭐</div><div class="txt">Industry experience across L2 support &amp; incident management</div></div>
+    </div>
+  </section>
+
+  <!-- FREE CONTENT -->
+  <section class="landing-section" id="freeContent">
+    <div class="landing-eyebrow"><span style="background:#3a1f1f;color:#e0793c;padding:3px 9px;border-radius:14px;">● Learning Hub</span></div>
+    <h2 class="landing-h2" style="margin-top:14px;">Free Content</h2>
+    <p class="landing-sub">Deep dive into architecture, scalability, and real-world implementations with our free curated collection.</p>
+    <div class="free-grid">
+      <div class="free-card">
+        <div class="icon">🎬</div>
+        <div><h4>Video</h4><p>Videos related to the core of Agentic AI, LLMOps, and system design</p></div>
+      </div>
+      <div class="free-card">
+        <div class="icon">📝</div>
+        <div><h4>Ultimate Interview Bank</h4><p>Hand-picked questions across every role to make you interview ready</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section class="landing-section" id="projects">
+    <div class="landing-eyebrow"><span style="background:#241f3d;color:#a99bf5;padding:3px 9px;border-radius:14px;">● Build Something Real</span></div>
+    <h2 class="landing-h2" style="margin-top:14px;">Projects</h2>
+    <p class="landing-sub">A curated tour of real, open-source AI agent implementations — browse by industry or by the framework that built them. Every card links straight to working code.</p>
+
+    <div class="proj-filter-row" id="projFilterRow">
+      <button class="proj-filter-btn active" data-cat="all">All</button>
+      <button class="proj-filter-btn" data-cat="industry">By Industry</button>
+      <button class="proj-filter-btn" data-cat="crewai">CrewAI</button>
+      <button class="proj-filter-btn" data-cat="autogen">AutoGen</button>
+      <button class="proj-filter-btn" data-cat="agno">Agno</button>
+      <button class="proj-filter-btn" data-cat="langgraph">LangGraph</button>
+    </div>
+    <div class="proj-filter-row level-row" id="projLevelRow">
+      <button class="proj-filter-btn level-btn active" data-level="all">All Levels</button>
+      <button class="proj-filter-btn level-btn beginner" data-level="beginner">Beginner</button>
+      <button class="proj-filter-btn level-btn intermediate" data-level="intermediate">Intermediate</button>
+      <button class="proj-filter-btn level-btn advanced" data-level="advanced">Advanced</button>
+    </div>
+
+    <div class="proj-grid" id="projGrid"></div>
+  </section>
+
+  <!-- INTERVIEW PREP -->
+  <section class="landing-section" id="interviewPrep">
+    <div class="landing-eyebrow">Interview Prep</div>
+    <h2 class="landing-h2">Get <span class="grad">Interview-Ready</span><br>Role by Role</h2>
+    <p class="landing-sub">Hand-picked questions across every role, with the reasoning behind each answer — not just the answer itself.</p>
+    <div class="mentor-badges" style="margin-bottom:28px;">
+      <span class="mentor-badge"><span class="dot"></span> Agentic AI Dev</span>
+      <span class="mentor-badge"><span class="dot"></span> LLMOps</span>
+      <span class="mentor-badge"><span class="dot"></span> AI Support</span>
+      <span class="mentor-badge"><span class="dot"></span> AI Consulting</span>
+    </div>
+    <button class="wb-toggle" style="background:linear-gradient(90deg,#6a5ce0,#8a6ff0);color:#fff;" onclick="window.scrollTo({top:0,behavior:'smooth'}); if(typeof switchNav==='function'){ setTimeout(()=>switchNav('bank'),350); }">Open Interview Bank →</button>
+  </section>
+
+  <!-- COMMUNITY -->
+  <section class="landing-section" id="community">
+    <div class="landing-eyebrow">Community</div>
+    <h2 class="landing-h2">Learn <span class="grad">Alongside Others</span></h2>
+    <p class="landing-sub">Content, newsletters, and meetups to keep you learning between lessons.</p>
+    <div class="free-grid">
+      <div class="free-card" onclick="window.open('https://www.linkedin.com/newsletters/neural-nodes-your-weekly-map-7430602044316499968/','_blank')">
+        <div class="icon">📰</div>
+        <div><h4>Neural Nodes</h4><p>A weekly LinkedIn newsletter breaking down LLMs and Generative AI into clear mental models.</p></div>
+      </div>
+      <div class="free-card">
+        <div class="icon">🤝</div>
+        <div><h4>NCR Tech Community</h4><p>Grassroots meetups for the Gurgaon/Noida (NCR) tech community.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="landing-section" id="about">
+    <div class="landing-eyebrow">About</div>
+    <h2 class="landing-h2">Mentor Profile <span class="grad">— Viveka Sharma</span></h2>
+    <p class="landing-sub">Freelancer Mentor at Career Byte Code, with 5+ years across production ops, DevOps, and cloud — now mentoring the next generation of Agentic AI, LLMOps, and DevOps engineers.</p>
+    <div class="footer-social" style="gap:12px;">
+      <a href="https://www.linkedin.com/in/aiwithviveka" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47v6.27zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a>
+      <a href="https://github.com/aiwithviveka" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.64.5.1.68-.22.68-.49 0-.24-.01-.88-.01-1.72-2.78.62-3.37-1.36-3.37-1.36-.45-1.19-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.84.09-.66.35-1.1.63-1.35-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.9-1.33 2.74-1.05 2.74-1.05.56 1.41.21 2.46.1 2.72.65.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2z"/></svg></a>
+      <a href="https://aiwithviveka.substack.com/" target="_blank" rel="noopener noreferrer" aria-label="Substack"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M22 6.5H2V4h20v2.5zM2 9.5h20V22L12 15.5 2 22V9.5zM22 2H2v1.5h20V2z"/></svg></a>
+      <a href="https://x.com/TechRise_Viveka" target="_blank" rel="noopener noreferrer" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" xmlns="http://www.w3.org/2000/svg"><path d="M18.24 2.75h3.06l-6.69 7.65 7.87 10.85h-6.16l-4.83-6.34-5.53 6.34H2.9l7.16-8.19-7.55-10.31h6.32l4.37 5.79 4.99-5.79zm-1.07 16.66h1.7L7.02 4.5H5.2l11.97 14.91z"/></svg></a>
+    </div>
+  </section>
+
+  <!-- 1:1 SUPPORT -->
+  <section class="landing-section" id="support1on1">
+    <div class="support-card">
+      <div class="sc-left">
+        <span class="support-tag">Book it individually</span>
+        <h3>Resume, LinkedIn &amp; Interview Help</h3>
+        <p>Targeted 1:1 support for one specific goal. Message on WhatsApp or book a slot.</p>
+      </div>
+      <div class="support-actions">
+        <a class="support-btn whatsapp" href="https://wa.me/918121135628?text=Hi%20Viveka%2C%20I%20found%20your%20AIWithViveka%20website%20and%20I%20would%20like%20to%20book%20a%20free%2030-minute%20intro%20call%20about%201%3A1%20support." target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.1h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.39c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.55-3.7 8.24-8.24 8.24zm4.52-6.17c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.25-.64.81-.78.97-.14.17-.29.19-.53.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.48-1.39-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.44-.06-.12-.56-1.35-.76-1.85-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.87.85-.87 2.08 0 1.22.89 2.4 1.02 2.57.12.17 1.75 2.67 4.24 3.74.59.26 1.06.41 1.42.52.6.19 1.14.16 1.57.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.14-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
+          Message on WhatsApp
+        </a>
+        <a class="support-btn primary" href="https://www.careerbytecode.in/aiwithviveka/" target="_blank" rel="noopener noreferrer">
+          Book a slot →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand"><span class="dot"></span><span>TechRise With Viveka</span></div>
+          <div class="footer-desc">A guided, self-paced learning platform by Viveka Sharma, helping engineers master system design fundamentals and ace real-world interview case studies.</div>
+          <div class="footer-social">
+            <a href="https://www.linkedin.com/in/aiwithviveka/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47v6.27zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+            </a>
+            <a href="https://github.com/aiwithviveka" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.64.5.1.68-.22.68-.49 0-.24-.01-.88-.01-1.72-2.78.62-3.37-1.36-3.37-1.36-.45-1.19-1.11-1.5-1.11-1.5-.9-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.84.09-.66.35-1.1.63-1.35-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5 0c1.9-1.33 2.74-1.05 2.74-1.05.56 1.41.21 2.46.1 2.72.65.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2z"/></svg>
+            </a>
+            <a href="https://www.youtube.com/@TechRiseWithViveka" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M21.58 7.19a2.75 2.75 0 0 0-1.94-1.95C17.9 4.75 12 4.75 12 4.75s-5.9 0-7.64.49a2.75 2.75 0 0 0-1.94 1.95C2 8.93 2 12 2 12s0 3.07.42 4.81a2.75 2.75 0 0 0 1.94 1.95c1.74.49 7.64.49 7.64.49s5.9 0 7.64-.49a2.75 2.75 0 0 0 1.94-1.95C22 15.07 22 12 22 12s0-3.07-.42-4.81zM10.05 15.02V8.98L15.5 12l-5.45 3.02z"/></svg>
+            </a>
+            <a href="https://x.com/TechRise_Viveka" target="_blank" rel="noopener noreferrer" aria-label="X">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" xmlns="http://www.w3.org/2000/svg"><path d="M18.24 2.75h3.06l-6.69 7.65 7.87 10.85h-6.16l-4.83-6.34-5.53 6.34H2.9l7.16-8.19-7.55-10.31h6.32l4.37 5.79 4.99-5.79zm-1.07 16.66h1.7L7.02 4.5H5.2l11.97 14.91z"/></svg>
+            </a>
+            <a href="https://www.instagram.com/techrisewithviveka" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.72 3.72 0 0 1-1.38-.9 3.72 3.72 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41 1.27-.06 1.65-.07 4.85-.07zM12 0C8.74 0 8.33.01 7.05.07c-1.27.06-2.15.26-2.91.56a5.87 5.87 0 0 0-2.13 1.38A5.87 5.87 0 0 0 .63 4.14c-.3.76-.5 1.64-.56 2.91C.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91.31.79.72 1.46 1.38 2.13a5.87 5.87 0 0 0 2.13 1.38c.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56a5.87 5.87 0 0 0 2.13-1.38 5.87 5.87 0 0 0 1.38-2.13c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91a5.87 5.87 0 0 0-1.38-2.13A5.87 5.87 0 0 0 19.86.63c-.76-.3-1.64-.5-2.91-.56C15.67.01 15.26 0 12 0zm0 5.84A6.16 6.16 0 1 0 12 18.16 6.16 6.16 0 0 0 12 5.84zm0 10.16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm7.85-10.4a1.44 1.44 0 1 1-2.88 0 1.44 1.44 0 0 1 2.88 0z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Quick Links</div>
+          <a href="#textCourses">Learn</a>
+          <a href="#projects">Projects</a>
+          <a href="#interviewPrep">Interview Prep</a>
+          <a href="#mentor">Mentorship</a>
+          <a href="#community">Community</a>
+          <a href="#about">About</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Legal</div>
+          <a href="#">Terms of Service</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Refund &amp; Cancellation Policy</a>
+        </div>
+        <div class="footer-discord">
+          <div class="fd-label">💬 Community</div>
+          <p>Get course updates, announcements &amp; exclusive community offers.</p>
+          <a class="footer-discord-btn" href="https://chat.whatsapp.com/Bdcvk5OTsL8HxsGE9688zB" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.1h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.39c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.55-3.7 8.24-8.24 8.24zm4.52-6.17c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.25-.64.81-.78.97-.14.17-.29.19-.53.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.48-1.39-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.44-.06-.12-.56-1.35-.76-1.85-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.87.85-.87 2.08 0 1.22.89 2.4 1.02 2.57.12.17 1.75 2.67 4.24 3.74.59.26 1.06.41 1.42.52.6.19 1.14.16 1.57.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.14-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
+            Join Community
+          </a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 TechRise With Viveka. All rights reserved.</span>
+        <div class="footer-bottom-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Refund &amp; Cancellation Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* ============ TOPIC DATA (Part I — Foundations) ============ */
+const topics = [
+{
+  id:1, series:1, title:"What System Design Interviews Actually Test", sub:"Trade-offs over 'correct' answers",
+  plain:`A system design interview isn't checking whether you know one "right" architecture — there usually isn't one. It's checking whether you can take a vague goal ("design a URL shortener"), turn it into concrete numbers, and make a sequence of reasonable trade-offs out loud, explaining what you're giving up at each step.`,
+  notesHTML:`
+    <h4 class="subtopic" id="sd1-sub-what">Why There's No Single "Correct" Diagram</h4>
+    <p>Coding interviews have a right answer — the tests pass or they don't. <span class="key">System design interviews score your process</span>, not a specific diagram. Two candidates can draw very different architectures and both do well, because the interviewer is really watching how you handle ambiguity, whether you ask the right clarifying questions, and whether every box you draw has a reason to exist.</p>
+
+    <h4 class="subtopic" id="sd1-sub-loop">The Four-Step Loop That Works in Almost Every Interview</h4>
+    <p>Most strong answers follow roughly the same shape, in this order:</p>
+    <ol>
+      <li><span class="key">Clarify the scope.</span> What does this system actually need to do? A "URL shortener" could mean 10 users or 10 million — ask before you design.</li>
+      <li><span class="key">Estimate the numbers.</span> Rough daily active users, requests per second, storage growth per year. This is called "back-of-the-envelope" estimation, and it quietly decides whether you even need distributed systems at all.</li>
+      <li><span class="key">Sketch the high-level design.</span> Client → load balancer → application servers → database, then layer in caching, queues, or CDNs only where the numbers say you need them.</li>
+      <li><span class="key">Go deep on 1–2 components.</span> The interviewer will usually push you to zoom into one piece — how exactly does the database schema look, how do you generate a unique short code without collisions, and so on.</li>
+    </ol>
+
+    <figure class="figure">
+      <div class="figure-frame">
+        <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="70" width="130" height="70" rx="10" style="fill:#5f9ce6;stroke:#2860a8;stroke-width:1.5;"></rect>
+          <text x="75" y="100" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="12.5" font-weight="800" fill="#fff">1. Clarify</text>
+          <text x="75" y="118" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10.5" fill="#e8f0ff">scope &amp; goals</text>
+          <path d="M145 105 L172 105" stroke="#5a8fd6" stroke-width="2" marker-end="url(#arrow)"></path>
+          <rect x="175" y="70" width="130" height="70" rx="10" style="fill:#5f9ce6;stroke:#2860a8;stroke-width:1.5;"></rect>
+          <text x="240" y="100" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="12.5" font-weight="800" fill="#fff">2. Estimate</text>
+          <text x="240" y="118" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10.5" fill="#e8f0ff">traffic &amp; storage</text>
+          <path d="M310 105 L337 105" stroke="#5a8fd6" stroke-width="2" marker-end="url(#arrow)"></path>
+          <rect x="340" y="70" width="130" height="70" rx="10" style="fill:#5f9ce6;stroke:#2860a8;stroke-width:1.5;"></rect>
+          <text x="405" y="100" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="12.5" font-weight="800" fill="#fff">3. High-level</text>
+          <text x="405" y="118" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10.5" fill="#e8f0ff">design sketch</text>
+          <path d="M475 105 L502 105" stroke="#5a8fd6" stroke-width="2" marker-end="url(#arrow)"></path>
+          <rect x="505" y="70" width="130" height="70" rx="10" style="fill:#1a4a8a;stroke:#0f2f58;stroke-width:1.5;"></rect>
+          <text x="570" y="100" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="12.5" font-weight="800" fill="#fff">4. Go deep</text>
+          <text x="570" y="118" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10.5" fill="#e8f0ff">on 1-2 parts</text>
+          <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a8fd6"></path></marker></defs>
+        </svg>
+      </div>
+      <figcaption>The same four-step loop applies whether you're designing a URL shortener or a full video platform — only the depth of each step changes.</figcaption>
+    </figure>
+
+    <h4 class="subtopic" id="sd1-sub-tradeoffs">Everything Is a Trade-off</h4>
+    <p>The phrase you'll use more than any other in these interviews is "it depends." Consistency vs. availability, latency vs. cost, simplicity vs. scalability — every real decision trades one property for another. Naming the trade-off out loud ("I'm choosing eventual consistency here because this system can tolerate a few seconds of staleness, and in exchange we get much better availability during a network partition") is worth more than silently picking a component and hoping it's the one the interviewer wanted.</p>
+    <div class="plain-box" style="margin:12px 0 0 0;">💡 <b>Interview-ready one-liner:</b> "There's no perfect system design — only the right trade-offs for this system's specific scale, traffic pattern, and consistency requirements."</div>
+  `,
+  widgetHTML:`
+    <h3>Try it — Match the step to what it's really testing</h3>
+    <div class="hint">Click each step to reveal what the interviewer is actually evaluating at that stage.</div>
+    <div>
+      <div class="stage-card" data-fix="Whether you ask before assuming — jumping straight to a diagram without clarifying scope is one of the most common ways candidates lose points early.">
+        <h4>1. Clarify Scope</h4>
+        <p>Do you ask, or assume?</p>
+        <div class="fix"></div>
+      </div>
+      <div class="stage-card" data-fix="Whether you can turn a vague goal into concrete numbers — requests/sec and storage growth are what tell you if a single server is even a problem.">
+        <h4>2. Estimate</h4>
+        <p>Can you size the problem?</p>
+        <div class="fix"></div>
+      </div>
+      <div class="stage-card" data-fix="Whether every box on your diagram has a reason to exist. Adding a cache or queue 'because it sounds advanced' without justifying it is a red flag, not a strength.">
+        <h4>3. High-Level Design</h4>
+        <p>Is every component justified?</p>
+        <div class="fix"></div>
+      </div>
+      <div class="stage-card" data-fix="Whether you can reason at implementation depth about one real piece — schema design, a hashing scheme, a failure mode — not just stay at the buzzword level.">
+        <h4>4. Go Deep</h4>
+        <p>Can you get specific?</p>
+        <div class="fix"></div>
+      </div>
+    </div>
+  `,
+  widgetInit:()=>{
+    document.querySelectorAll('#widgetCard .stage-card').forEach(card=>{
+      card.querySelector('.fix').textContent = card.dataset.fix;
+      card.addEventListener('click',()=>card.classList.toggle('open'));
+    });
+  },
+  codeSample:null,
+  frameworkLinks:[]
+},
+{
+  id:2, series:1, title:"Scalability — Vertical vs. Horizontal Scaling", sub:"Bigger machine, or more machines?",
+  plain:`When a system starts struggling under load, you have exactly two levers: make the existing machine bigger (vertical scaling), or add more machines and share the load across them (horizontal scaling). Almost every other system design decision downstream — load balancers, database replication, caching — exists because horizontal scaling was chosen and now the pieces need to work together.`,
+  notesHTML:`
+    <h4 class="subtopic" id="sd2-sub-vertical">Vertical Scaling — Scaling Up</h4>
+    <p><span class="key">Vertical scaling (scaling up)</span> means adding more CPU, RAM, or faster disks to a single server. It's the simplest possible fix — no code changes, no new failure modes, no coordination between machines. But it hits a hard ceiling: there's a maximum machine size you can buy, it usually needs downtime to resize, and that single machine is now a single point of failure — if it goes down, everything goes down with it.</p>
+
+    <h4 class="subtopic" id="sd2-sub-horizontal">Horizontal Scaling — Scaling Out</h4>
+    <p><span class="key">Horizontal scaling (scaling out)</span> means adding more machines and spreading traffic across all of them. There's no theoretical ceiling — need more capacity, add another server. It also improves fault tolerance, since losing one of ten servers is a capacity dip, not an outage. The cost is complexity: now you need a way to distribute traffic across machines (a load balancer), and if those machines need shared state, you need to solve data consistency across them too.</p>
+
+    <figure class="figure">
+      <div class="figure-frame">
+        <svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="160" y="26" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="13" font-weight="800" fill="#1a4a8a">Vertical Scaling</text>
+          <rect x="90" y="150" width="140" height="60" rx="8" style="fill:#5f9ce6;stroke:#2860a8;stroke-width:1.5;"></rect>
+          <text x="160" y="184" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="12" font-weight="700" fill="#fff">Small Server</text>
+          <path d="M160 150 L160 100" stroke="#5a8fd6" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow2)"></path>
+          <rect x="60" y="45" width="200" height="55" rx="8" style="fill:#1a4a8a;stroke:#0f2f58;stroke-width:1.5;"></rect>
+          <text x="160" y="78" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="12" font-weight="700" fill="#fff">Bigger Server (more CPU/RAM)</text>
+
+          <text x="480" y="26" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="13" font-weight="800" fill="#1a4a8a">Horizontal Scaling</text>
+          <rect x="415" y="45" width="130" height="40" rx="8" style="fill:#93bdee;stroke:#3f78c4;stroke-width:1.5;"></rect>
+          <text x="480" y="70" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" fill="#0f2f58">Load Balancer</text>
+          <path d="M450 85 L370 150" stroke="#5a8fd6" stroke-width="1.5" marker-end="url(#arrow2)"></path>
+          <path d="M480 85 L480 150" stroke="#5a8fd6" stroke-width="1.5" marker-end="url(#arrow2)"></path>
+          <path d="M510 85 L590 150" stroke="#5a8fd6" stroke-width="1.5" marker-end="url(#arrow2)"></path>
+          <rect x="330" y="150" width="80" height="55" rx="8" style="fill:#5f9ce6;stroke:#2860a8;stroke-width:1.5;"></rect>
+          <text x="370" y="182" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10.5" font-weight="700" fill="#fff">Server</text>
+          <rect x="440" y="150" width="80" height="55" rx="8" style="fill:#5f9ce6;stroke:#2860a8;stroke-width:1.5;"></rect>
+          <text x="480" y="182" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10.5" font-weight="700" fill="#fff">Server</text>
+          <rect x="550" y="150" width="80" height="55" rx="8" style="fill:#5f9ce6;stroke:#2860a8;stroke-width:1.5;"></rect>
+          <text x="590" y="182" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10.5" font-weight="700" fill="#fff">Server</text>
+          <defs><marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a8fd6"></path></marker></defs>
+        </svg>
+      </div>
+      <figcaption>Vertical scaling grows one box. Horizontal scaling adds more boxes and needs a load balancer to spread traffic between them.</figcaption>
+    </figure>
+
+    <h4 class="subtopic" id="sd2-sub-choose">Which One Do Real Systems Actually Use?</h4>
+    <p>Almost every large-scale production system uses both, at different points. Teams often scale vertically first — it's fast and needs no architecture changes — and switch to horizontal scaling once they hit the ceiling of what a single machine can do, or once availability during hardware failure starts to matter more than simplicity. A small internal tool with predictable, modest traffic may never need to leave a single well-sized server; a consumer app with millions of daily users almost always ends up horizontally scaled.</p>
+    <div class="plain-box" style="margin:12px 0 0 0;">💡 <b>Interview-ready one-liner:</b> "Vertical scaling buys you simplicity with a hard ceiling; horizontal scaling buys you near-unlimited capacity and fault tolerance at the cost of needing a load balancer and, eventually, distributed data."</div>
+  `,
+  widgetHTML:`
+    <h3>Try it — Which one fits the scenario?</h3>
+    <div class="hint">Click each scenario to reveal the more sensible first move.</div>
+    <div>
+      <div class="stage-card" data-fix="Vertical scaling first. Low, predictable traffic with a hard budget rarely justifies the operational overhead of a load balancer and multiple servers.">
+        <h4>A small internal admin tool, ~50 users/day</h4>
+        <p>What's the sensible first move?</p>
+        <div class="fix"></div>
+      </div>
+      <div class="stage-card" data-fix="Horizontal scaling. A single server, however large, is a single point of failure and eventually a hard ceiling — a consumer app at this scale needs a load balancer and multiple servers.">
+        <h4>A consumer app with 5M+ daily active users</h4>
+        <p>What's the sensible first move?</p>
+        <div class="fix"></div>
+      </div>
+      <div class="stage-card" data-fix="Vertical, cautiously. If the bottleneck is genuinely CPU or RAM and traffic is still modest, upgrading the box is faster and simpler than re-architecting for horizontal scale prematurely.">
+        <h4>A backend that's CPU-bound but traffic is still modest</h4>
+        <p>What's the sensible first move?</p>
+        <div class="fix"></div>
+      </div>
+    </div>
+  `,
+  widgetInit:()=>{
+    document.querySelectorAll('#widgetCard .stage-card').forEach(card=>{
+      card.querySelector('.fix').textContent = card.dataset.fix;
+      card.addEventListener('click',()=>card.classList.toggle('open'));
+    });
+  },
+  codeSample:null,
+  frameworkLinks:[]
+},
+{
+  id:3, series:1, title:"Load Balancing", sub:"Spreading traffic without a single front door failing",
+  plain:`Once you have more than one server, something has to decide which server handles each incoming request. That "something" is a load balancer — it sits in front of your servers, spreads traffic across them using a chosen strategy, and stops sending traffic to any server that stops responding.`,
+  notesHTML:`
+    <h4 class="subtopic" id="sd3-sub-why">Why You Can't Just Let Clients Pick a Server</h4>
+    <p>Without a load balancer, clients would need to know about every server individually, and traffic would pile up unevenly wherever a client happened to connect first. A <span class="key">load balancer</span> gives clients one stable address to talk to, while it silently spreads requests across a pool of servers behind it — and just as importantly, health-checks those servers and routes around any that go down.</p>
+
+    <h4 class="subtopic" id="sd3-sub-algos">Common Load-Balancing Strategies</h4>
+    <ul>
+      <li><span class="key">Round robin</span> — requests go to each server in turn, one after another. Simple, and works well when every server has roughly equal capacity.</li>
+      <li><span class="key">Least connections</span> — new requests go to whichever server currently has the fewest active connections. Better than round robin when requests take very different amounts of time to finish.</li>
+      <li><span class="key">IP hash</span> — a client's IP address is hashed to consistently route them to the same server, useful when a server holds session state locally.</li>
+      <li><span class="key">Weighted routing</span> — servers with more capacity get proportionally more traffic, useful in a mixed fleet of different machine sizes.</li>
+    </ul>
+
+    <figure class="figure">
+      <div class="figure-frame">
+        <svg viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="70" cy="120" r="28" style="fill:#93bdee;stroke:#3f78c4;stroke-width:1.5;"></circle>
+          <text x="70" y="125" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" fill="#0f2f58">Client</text>
+          <path d="M98 120 L172 120" stroke="#5a8fd6" stroke-width="2" marker-end="url(#arrow3)"></path>
+          <rect x="175" y="90" width="150" height="60" rx="10" style="fill:#1a4a8a;stroke:#0f2f58;stroke-width:1.5;"></rect>
+          <text x="250" y="115" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="12" font-weight="800" fill="#fff">Load Balancer</text>
+          <text x="250" y="132" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#c9d8f5">health-checks servers</text>
+          <path d="M320 100 L400 45" stroke="#5a8fd6" stroke-width="1.5" marker-end="url(#arrow3)"></path>
+          <path d="M330 120 L400 120" stroke="#5a8fd6" stroke-width="1.5" marker-end="url(#arrow3)"></path>
+          <path d="M320 140 L400 195" stroke="#5a8fd6" stroke-width="1.5" stroke-dasharray="4,3"></path>
+          <rect x="405" y="18" width="120" height="52" rx="8" style="fill:#5f9ce6;stroke:#2860a8;stroke-width:1.5;"></rect>
+          <text x="465" y="49" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" fill="#fff">Server A</text>
+          <rect x="405" y="94" width="120" height="52" rx="8" style="fill:#5f9ce6;stroke:#2860a8;stroke-width:1.5;"></rect>
+          <text x="465" y="125" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" fill="#fff">Server B</text>
+          <rect x="405" y="170" width="120" height="52" rx="8" style="fill:#d9534f;stroke:#a83a37;stroke-width:1.5;opacity:0.55;"></rect>
+          <text x="465" y="201" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="11" font-weight="700" fill="#fff">Server C (down)</text>
+          <defs><marker id="arrow3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a8fd6"></path></marker></defs>
+        </svg>
+      </div>
+      <figcaption>The load balancer keeps sending traffic to healthy servers (A and B) and stops routing to Server C the moment its health checks start failing — clients never notice.</figcaption>
+    </figure>
+
+    <h4 class="subtopic" id="sd3-sub-l4l7">Layer 4 vs. Layer 7 Load Balancing</h4>
+    <p>A <span class="key">Layer 4 (transport-layer)</span> load balancer routes based only on IP address and port — fast, but blind to the actual content of the request. A <span class="key">Layer 7 (application-layer)</span> load balancer can read the HTTP request itself — path, headers, cookies — and route "/video" traffic to one pool of servers and "/api" traffic to another. Layer 7 is more flexible but does more work per request, so it's a small latency and cost trade-off for that flexibility.</p>
+    <div class="plain-box" style="margin:12px 0 0 0;">💡 <b>Interview-ready one-liner:</b> "A load balancer turns 'many servers' into 'one reliable address,' and the choice of algorithm — round robin, least connections, or IP hash — depends on whether your requests are uniform, uneven, or need to stick to the same server."</div>
+  `,
+  widgetHTML:`
+    <h3>Try it — Pick the right algorithm</h3>
+    <div class="hint">Click each scenario to see which load-balancing strategy fits best.</div>
+    <div>
+      <div class="stage-card" data-fix="Round robin. Uniform, short-lived requests across equal-sized servers is exactly the simple case round robin was built for.">
+        <h4>All servers are identical, requests are quick and uniform</h4>
+        <p>Which algorithm fits?</p>
+        <div class="fix"></div>
+      </div>
+      <div class="stage-card" data-fix="Least connections. Long-lived, uneven requests (like video streams or large uploads) mean round robin would overload whichever server got unlucky with a batch of slow requests.">
+        <h4>Some requests take 200ms, others take 20 seconds</h4>
+        <p>Which algorithm fits?</p>
+        <div class="fix"></div>
+      </div>
+      <div class="stage-card" data-fix="IP hash (or another form of sticky routing). If session data lives only on the server that first handled the client, that same client needs to keep landing on that server.">
+        <h4>Each server keeps a user's session in local memory</h4>
+        <p>Which algorithm fits?</p>
+        <div class="fix"></div>
+      </div>
+    </div>
+  `,
+  widgetInit:()=>{
+    document.querySelectorAll('#widgetCard .stage-card').forEach(card=>{
+      card.querySelector('.fix').textContent = card.dataset.fix;
+      card.addEventListener('click',()=>card.classList.toggle('open'));
+    });
+  },
+  codeSample:null,
+  frameworkLinks:[]
+},
+{
+  id:4, series:1, title:"Caching", sub:"Answering from memory instead of asking again",
+  plain:`A cache stores a copy of data that's expensive to fetch or compute, somewhere much faster to read from, so repeat requests can be answered almost instantly instead of redoing the same expensive work every single time.`,
+  notesHTML:`
+    <h4 class="subtopic" id="sd4-sub-why">Why Caching Works So Well</h4>
+    <p>Most real traffic is heavily skewed — a small fraction of data (a trending video, a popular product page) accounts for a huge fraction of requests. This is sometimes called the 80/20 pattern. A <span class="key">cache</span> keeps that hot slice of data in fast memory close to where it's needed, so the slow path — a database query, an external API call, a heavy computation — only has to run once in a while instead of on every single request.</p>
+
+    <h4 class="subtopic" id="sd4-sub-where">Where a Cache Can Live</h4>
+    <ul>
+      <li><span class="key">Client-side cache</span> — the browser or app stores data locally so it doesn't even ask the server again.</li>
+      <li><span class="key">CDN (Content Delivery Network)</span> — copies of static content (images, video, JS bundles) sit on servers geographically close to the user.</li>
+      <li><span class="key">Application-level cache</span> — an in-memory store like Redis or Memcached sits between your app servers and your database.</li>
+      <li><span class="key">Database cache</span> — the database itself keeps frequently accessed rows or query results in memory.</li>
+    </ul>
+
+    <figure class="figure">
+      <div class="figure-frame">
+        <svg viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="70" width="120" height="60" rx="8" style="fill:#93bdee;stroke:#3f78c4;stroke-width:1.5;"></rect>
+          <text x="70" y="105" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="12" font-weight="700" fill="#0f2f58">App Server</text>
+          <path d="M132 90 L192 90" stroke="#5a8fd6" stroke-width="2" marker-end="url(#arrow4)"></path>
+          <text x="162" y="80" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" font-weight="700" fill="#2a7f5f">1. check cache</text>
+          <rect x="195" y="60" width="130" height="60" rx="8" style="fill:#2a7f5f;stroke:#1c5c43;stroke-width:1.5;"></rect>
+          <text x="260" y="86" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="12" font-weight="800" fill="#fff">Cache</text>
+          <text x="260" y="102" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9.5" fill="#d6f5e8">(Redis / Memcached)</text>
+          <path d="M325 78 L400 45" stroke="#c9822a" stroke-width="1.6" stroke-dasharray="4,3" marker-end="url(#arrow4)"></path>
+          <text x="380" y="35" font-family="-apple-system,sans-serif" font-size="10" font-weight="700" fill="#c9822a">hit → return fast</text>
+          <path d="M325 105 L400 150" stroke="#a83a37" stroke-width="1.6" marker-end="url(#arrow4)"></path>
+          <text x="380" y="170" font-family="-apple-system,sans-serif" font-size="10" font-weight="700" fill="#a83a37">miss → ask database</text>
+          <rect x="405" y="120" width="130" height="60" rx="8" style="fill:#5f9ce6;stroke:#2860a8;stroke-width:1.5;"></rect>
+          <text x="470" y="155" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="12" font-weight="700" fill="#fff">Database</text>
+          <defs><marker id="arrow4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a8fd6"></path></marker></defs>
+        </svg>
+      </div>
+      <figcaption>On a cache hit, the app never touches the database at all. On a miss, it falls through to the database, then usually stores the result in the cache for next time.</figcaption>
+    </figure>
+
+    <h4 class="subtopic" id="sd4-sub-invalidation">The Hard Part: Cache Invalidation</h4>
+    <p>Storing data in a cache is easy. Knowing when that copy is stale is the hard part — famously one of the two genuinely hard problems in computer science. Two common strategies: <span class="key">TTL (time-to-live)</span>, where cached data automatically expires after a set duration whether or not it's actually stale, trading some staleness for simplicity; and <span class="key">write-through invalidation</span>, where the cache entry is explicitly updated or deleted the moment the underlying data changes, trading extra write-path complexity for fresher data.</p>
+    <div class="plain-box" style="margin:12px 0 0 0;">💡 <b>Interview-ready one-liner:</b> "A cache trades a small amount of staleness for a large amount of speed — the real design decision isn't whether to cache, it's how you decide when a cached value is no longer trustworthy."</div>
+  `,
+  widgetHTML:`
+    <h3>Try it — Hit or miss?</h3>
+    <div class="hint">Click each request to see whether it's a cache hit or miss, and why.</div>
+    <div>
+      <div class="stage-card" data-fix="Cache hit. This is exactly the repeat-read pattern caching is built for — the second request for the same unchanged data is answered from memory.">
+        <h4>Same product page requested twice in 10 seconds, no changes</h4>
+        <p>Hit or miss?</p>
+        <div class="fix"></div>
+      </div>
+      <div class="stage-card" data-fix="Cache miss (and likely a fresh write to the cache afterward). First-ever request for this data has nothing cached yet, so it falls through to the database.">
+        <h4>First request ever for a brand-new user's profile</h4>
+        <p>Hit or miss?</p>
+        <div class="fix"></div>
+      </div>
+      <div class="stage-card" data-fix="Should be a miss if invalidation is working correctly — the cached copy should have been cleared or updated the moment the price changed, so this request needs to hit the database for the fresh value.">
+        <h4>Product price just changed, then someone requests that product page</h4>
+        <p>Hit or miss?</p>
+        <div class="fix"></div>
+      </div>
+    </div>
+  `,
+  widgetInit:()=>{
+    document.querySelectorAll('#widgetCard .stage-card').forEach(card=>{
+      card.querySelector('.fix').textContent = card.dataset.fix;
+      card.addEventListener('click',()=>card.classList.toggle('open'));
+    });
+  },
+  codeSample:null,
+  frameworkLinks:[]
+},
+{
+  id:5, series:1, title:"Database Scaling — Replication & Sharding", sub:"When one database isn't enough either",
+  plain:`Just like a single application server eventually runs out of room, a single database eventually runs out of room too — either it can't keep up with read traffic, or the data itself gets too big to fit on one machine. Replication solves the first problem by copying data across multiple databases; sharding solves the second by splitting the data itself across multiple databases.`,
+  notesHTML:`
+    <h4 class="subtopic" id="sd5-sub-replication">Replication — Copies for Read Scale and Safety</h4>
+    <p><span class="key">Replication</span> keeps full copies of the same database on multiple servers. The most common pattern is <span class="key">leader–follower (primary–replica)</span> replication: all writes go to one leader database, which then propagates those changes to one or more follower databases. Reads can then be spread across the followers, taking massive load off the leader — and if the leader fails, a follower can be promoted to take over.</p>
+
+    <figure class="figure">
+      <div class="figure-frame">
+        <svg viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <rect x="250" y="20" width="140" height="55" rx="8" style="fill:#1a4a8a;stroke:#0f2f58;stroke-width:1.5;"></rect>
+          <text x="320" y="53" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="12" font-weight="800" fill="#fff">Leader (writes)</text>
+          <path d="M290 75 L150 130" stroke="#5a8fd6" stroke-width="1.6" stroke-dasharray="4,3" marker-end="url(#arrow5)"></path>
+          <path d="M350 75 L490 130" stroke="#5a8fd6" stroke-width="1.6" stroke-dasharray="4,3" marker-end="url(#arrow5)"></path>
+          <text x="320" y="98" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" font-weight="700" fill="#7d869a">replicates changes</text>
+          <rect x="80" y="135" width="140" height="50" rx="8" style="fill:#5f9ce6;stroke:#2860a8;stroke-width:1.5;"></rect>
+          <text x="150" y="165" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="11.5" font-weight="700" fill="#fff">Follower (reads)</text>
+          <rect x="420" y="135" width="140" height="50" rx="8" style="fill:#5f9ce6;stroke:#2860a8;stroke-width:1.5;"></rect>
+          <text x="490" y="165" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="11.5" font-weight="700" fill="#fff">Follower (reads)</text>
+          <defs><marker id="arrow5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5a8fd6"></path></marker></defs>
+        </svg>
+      </div>
+      <figcaption>All writes go through the single leader, which then pushes those changes out to followers — followers absorb the bulk of read traffic.</figcaption>
+    </figure>
+
+    <p>Because replication takes a small amount of time to propagate, followers are briefly behind the leader — this is called <span class="key">replication lag</span>, and it's the reason leader-follower systems are usually "eventually consistent" for reads rather than instantly consistent.</p>
+
+    <h4 class="subtopic" id="sd5-sub-sharding">Sharding — Splitting the Data Itself</h4>
+    <p>Replication doesn't help if the data itself is too large or the write volume is too high for one machine — every follower still needs to store the full copy. <span class="key">Sharding (horizontal partitioning)</span> solves that by splitting rows across multiple independent databases based on some key, like user ID. Each shard holds only a slice of the overall data, so both storage and write capacity now scale by adding more shards, not by making one machine bigger.</p>
+
+    <h4 class="subtopic" id="sd5-sub-shardkey">Picking a Shard Key Is the Whole Game</h4>
+    <p>A bad shard key creates a <span class="key">hot shard</span> — one shard that gets disproportionately more traffic than the others, which defeats the entire point of sharding. Sharding by user ID usually distributes load evenly across a large user base; sharding by something like "signup date" can easily concentrate all of today's active traffic onto a single shard holding recent users. Choosing a shard key that spreads both data and access patterns evenly is consistently one of the hardest and most consequential decisions in distributed database design.</p>
+    <div class="plain-box" style="margin:12px 0 0 0;">💡 <b>Interview-ready one-liner:</b> "Replication scales reads and adds fault tolerance by copying the same data; sharding scales storage and writes by splitting the data — most large systems eventually need both, layered together."</div>
+  `,
+  widgetHTML:`
+    <h3>Try it — Replication or sharding?</h3>
+    <div class="hint">Click each problem to see which technique actually solves it.</div>
+    <div>
+      <div class="stage-card" data-fix="Replication. The dataset fits fine on one machine — the bottleneck is read volume, which extra follower copies can absorb.">
+        <h4>Read traffic is 50x write traffic, but total data fits on one server</h4>
+        <p>Replication or sharding?</p>
+        <div class="fix"></div>
+      </div>
+      <div class="stage-card" data-fix="Sharding. Adding more read replicas doesn't help — every replica would still need to store the entire dataset, which no longer fits on one disk.">
+        <h4>Total data has grown past what a single disk can store</h4>
+        <p>Replication or sharding?</p>
+        <div class="fix"></div>
+      </div>
+      <div class="stage-card" data-fix="Both. Replication alone can't handle write volume this high — you need sharding to split the writes, and typically each shard is also replicated for safety and read scale.">
+        <h4>Write volume alone is too high for a single leader database to handle</h4>
+        <p>Replication or sharding?</p>
+        <div class="fix"></div>
+      </div>
+    </div>
+  `,
+  widgetInit:()=>{
+    document.querySelectorAll('#widgetCard .stage-card').forEach(card=>{
+      card.querySelector('.fix').textContent = card.dataset.fix;
+      card.addEventListener('click',()=>card.classList.toggle('open'));
+    });
+  },
+  codeSample:null,
+  frameworkLinks:[]
+},
+];
+
+/* ============ INTERVIEW BANK DATA ============
+   Curated from live MNC job postings & interview patterns for
+   Fresher/Intern, Agentic AI Developer, AI Consultant, LLMOps Engineer,
+   Forward Deployed Engineer (FDE) and AI Production Support Engineer roles —
+   entry-level through 1–5 yrs, current hiring bar.
+   Mapped 1:1 to the Part 1 · Foundations topics on the left. Every topic now
+   also covers the deeper follow-ups interviewers ask once the basics land —
+   production debugging, drift detection, agent safety/MCP, hybrid search, etc. —
+   matching the "new" subtopics added to each topic's notes. */
+const interviewBank = [
+  { category:"What System Design Interviews Actually Test", roles:["fresher"],
+    question:"What's the very first thing you should do when given a vague prompt like 'design Instagram'?",
+    answer:"Ask clarifying questions before drawing anything — how many users, read-heavy or write-heavy, which specific feature (feed, DMs, stories) the interviewer actually wants you to focus on. Jumping straight to a diagram without scoping is one of the most common early mistakes." },
+  { category:"What System Design Interviews Actually Test", roles:["agentic","fde"],
+    question:"Why is 'it depends' often the most honest answer in a system design interview, and how do you say it well?",
+    answer:"Because almost every real design decision trades one property for another. Saying it well means naming the specific trade-off — e.g. 'I'd pick eventual consistency here because this data can tolerate a few seconds of staleness, in exchange for better availability' — rather than using it as a way to avoid committing to an answer." },
+  { category:"What System Design Interviews Actually Test", roles:["consultant"],
+    question:"A junior engineer keeps adding components to their design 'just in case, to look more advanced.' What's wrong with that approach?",
+    answer:"Every component should be justified by an actual requirement or number from the estimation step. Adding a cache, queue, or CDN without a reason it's needed reads as buzzword-matching rather than engineering judgment, and a good interviewer will ask 'why do you need that?' immediately." },
+
+  { category:"Scalability — Vertical vs. Horizontal Scaling", roles:["fresher"],
+    question:"What's the main risk of relying only on vertical scaling for a production system?",
+    answer:"A single, larger machine is still a single point of failure — if it goes down, the whole system goes down — and there's a hard ceiling on how large one machine can get, after which vertical scaling simply isn't an option anymore." },
+  { category:"Scalability — Vertical vs. Horizontal Scaling", roles:["llmops","agentic"],
+    question:"Your team just moved from one server to five behind a load balancer. What new class of problem did you just take on that you didn't have before?",
+    answer:"State coordination across machines. Anything that used to live safely in one server's memory — sessions, in-progress computations, local caches — now needs a shared or replicated home, since a client's next request might land on a completely different server." },
+  { category:"Scalability — Vertical vs. Horizontal Scaling", roles:["support"],
+    question:"A service that scaled horizontally is still slow under load even after adding more servers. What's a likely explanation to check first?",
+    answer:"The bottleneck has likely moved downstream — commonly the database, which usually isn't horizontally scaled by default. Adding more app servers doesn't help if they're all still queuing on the same single database." },
+
+  { category:"Load Balancing", roles:["fresher"],
+    question:"What's the practical difference between a Layer 4 and a Layer 7 load balancer?",
+    answer:"Layer 4 routes based only on IP and port — fast but blind to request content. Layer 7 can read the actual HTTP request (path, headers, cookies) and route different paths to different server pools, at the cost of a bit more processing per request." },
+  { category:"Load Balancing", roles:["agentic","fde"],
+    question:"Why would you choose 'least connections' over 'round robin' for a media upload service?",
+    answer:"Upload requests vary wildly in duration — a small image versus a large video. Round robin would keep sending new requests to a server still busy with a slow upload; least connections routes new requests to whichever server is actually free right now." },
+  { category:"Load Balancing", roles:["consultant"],
+    question:"A client's load balancer keeps marking healthy servers as down during traffic spikes. What would you investigate?",
+    answer:"The health-check configuration itself — too aggressive a timeout or too few retries can flag a server that's just momentarily slow (not actually unhealthy) as down, pulling capacity out of rotation exactly when it's needed most." },
+
+  { category:"Caching", roles:["fresher"],
+    question:"In plain terms, why does a cache make things faster?",
+    answer:"It keeps a copy of frequently requested data in fast memory close to where it's needed, so repeat requests skip the slower path (a database query, an external API call, a heavy computation) entirely." },
+  { category:"Caching", roles:["llmops","agentic"],
+    question:"What's the risk of relying purely on a long TTL for cache invalidation on rapidly-changing data?",
+    answer:"Users can see stale data for the full TTL window even after the underlying value has changed — fine for content that barely changes, but risky for something like account balances or live pricing where staleness has real consequences." },
+  { category:"Caching", roles:["support"],
+    question:"Users report seeing an old price on a product page minutes after it was updated. What do you check first?",
+    answer:"Whether the cache entry for that product was actually invalidated or updated at write time — a missed or delayed cache-invalidation step on the write path is the most common cause of this exact symptom." },
+
+  { category:"Database Scaling — Replication & Sharding", roles:["fresher"],
+    question:"If an app has heavy read traffic but the total data still fits comfortably on one machine, should you reach for replication or sharding first?",
+    answer:"Replication. Sharding solves a storage/write problem that doesn't exist yet here; adding read replicas directly targets the actual bottleneck, which is read volume." },
+  { category:"Database Scaling — Replication & Sharding", roles:["agentic","fde"],
+    question:"What is replication lag, and why does it matter for how you design reads?",
+    answer:"It's the small delay between a write landing on the leader and that change propagating to followers. It matters because a read immediately after a write might hit a follower that hasn't caught up yet — which is why read-your-own-writes flows often route that specific read back to the leader." },
+  { category:"Database Scaling — Replication & Sharding", roles:["consultant"],
+    question:"A client wants to shard their database by signup date to 'keep things organized.' Why should you push back on that specific shard key?",
+    answer:"Signup date concentrates today's most active users onto whichever shard holds recent signups, creating a hot shard that gets disproportionate traffic — defeating the purpose of sharding. A key like user ID, which spreads both data and access patterns evenly, is usually a far safer choice." },
+];
+const ROLE_LABELS = {
+  agentic:{ label:"Agentic AI Dev", cls:"rc-agentic" },
+  consultant:{ label:"AI Consultant", cls:"rc-consultant" },
+  llmops:{ label:"LLMOps Engineer", cls:"rc-llmops" },
+  fde:{ label:"FDE", cls:"rc-fde" },
+  support:{ label:"AI Support Eng", cls:"rc-support" },
+  fresher:{ label:"Fresher / Intern", cls:"rc-fresher" },
+};
+
+/* ============ helpers ============ */
+function pseudoRand(str){
+  let h=0;
+  for(let i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) >>> 0; }
+  return (h % 1000) / 1000 + 0.05;
+}
+function barRow(label, pct, color){
+  return `<div class="bar-row">
+    <div class="bar-label">${escapeHtml(label)}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color};"></div></div>
+    <div class="bar-pct">${pct}%</div>
+  </div>`;
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ============ topic list + content rendering ============ */
+const listI = document.getElementById('topicListI');
+const listII = document.getElementById('topicListII');
+topics.forEach(t=>{
+  const btn=document.createElement('button');
+  btn.className='topic-btn';
+  btn.innerHTML=`<span class="topic-num">E${t.id}</span><span class="topic-btn-body"><span class="topic-btn-title">${t.title}</span><span class="topic-btn-sub">${t.sub||""}</span></span>`;
+  btn.addEventListener('click',()=>{ switchNav('curriculum'); selectTopic(t,btn); });
+  ((t.series||1)===2 ? listII : listI).appendChild(btn);
+});
+
+function selectTopic(t, btn){
+  document.querySelectorAll('.topic-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const seriesNum = t.series||1;
+  document.getElementById('topbarTitle').innerHTML = `E${t.id}. ${t.title} <span class="muted">— Series ${seriesNum}</span>`;
+
+  document.getElementById('contentInner').innerHTML = `
+    <div class="kicker">Series ${seriesNum} · Episode ${t.id}</div>
+    <h1>${t.title}</h1>
+    <div class="plain-box">💡 <b>In plain words:</b> ${t.plain}</div>
+    <div class="notes" id="notesBody">${t.notesHTML}</div>
+
+    <div class="section-label">Interactive example</div>
+    <div class="card" id="widgetCard">${t.widgetHTML}</div>
+
+    ${t.codeSample ? `
+    <div class="section-label">Runnable code</div>
+    <div class="card">
+      <h3>Try the code</h3>
+      <div class="hint">Edit it if you like, then run it — output prints below (JavaScript playground, runs entirely in your browser).</div>
+      <textarea class="code-editor" id="codeEditor">${escapeHtml(t.codeSample)}</textarea>
+      <div class="code-toolbar">
+        <button class="action alt" id="runCodeBtn">Run ▶</button>
+        <span style="font-size:11.5px;color:#8a8570;">No data leaves this page.</span>
+      </div>
+      <div class="code-output" id="codeOutput"></div>
+    </div>
+    ` : ``}
+
+    ${(t.frameworkLinks && t.frameworkLinks.length) ? t.frameworkLinks.map(fw => `
+    <div class="section-label">Framework link</div>
+    <div class="card fw-card">
+      <span class="fw-badge">${escapeHtml(fw.frameworks)}</span>
+      <h3>${escapeHtml(fw.heading)}</h3>
+      <p class="fw-blurb">${fw.blurb}</p>
+      <div class="fw-codebox">
+        <div class="fw-codebox-header"><span>${escapeHtml(fw.filename)}</span><span>Python · reference only</span></div>
+        <pre>${escapeHtml(fw.code)}</pre>
+      </div>
+      ${fw.note ? `<div class="callout">${fw.note}</div>` : ``}
+    </div>
+    `).join("") : ``}
+  `;
+
+  if(t.widgetInit) t.widgetInit();
+
+  const runBtn = document.getElementById('runCodeBtn');
+  if(runBtn) runBtn.addEventListener('click', ()=>{
+    const code = document.getElementById('codeEditor').value;
+    const out = document.getElementById('codeOutput');
+    const lines = [];
+    const fakeConsole = { log:(...args)=>lines.push(args.map(a=> typeof a==='object'? JSON.stringify(a,null,2) : String(a)).join(" ")) };
+    try{
+      const fn = new Function('console', code);
+      fn(fakeConsole);
+      out.classList.remove('error');
+      out.textContent = lines.length ? lines.join("\n") : "(no output — try console.log(...) in your code)";
+    }catch(err){
+      out.classList.add('error');
+      out.textContent = "Error: " + err.message;
+    }
+    out.classList.add('show');
+  });
+}
+
+/* ============ INTERVIEW BANK: sidebar nav + category list + search + cards ============ */
+const tabCurriculum = document.getElementById('tabCurriculum');
+const tabBank = document.getElementById('tabBank');
+const curriculumSidebar = document.getElementById('curriculumSidebar');
+const bankSidebar = document.getElementById('bankSidebar');
+const bankCatList = document.getElementById('bankCatList');
+const contentInnerEl = document.getElementById('contentInner');
+
+let bankState = { category:'All', search:'' };
+
+// Build category list (All + one per topic) with counts, in curriculum order
+const bankCategories = ['All', ...topics.map(t=>t.title)];
+function categoryCount(cat){
+  return cat==='All' ? interviewBank.length : interviewBank.filter(q=>q.category===cat).length;
+}
+document.getElementById('bankTotalCount').textContent = interviewBank.length;
+bankCategories.forEach(cat=>{
+  const btn=document.createElement('button');
+  btn.className='bank-cat-btn'+(cat==='All'?' active':'');
+  btn.dataset.cat=cat;
+  btn.innerHTML=`<span>${cat}</span><span class="bank-cat-count">${categoryCount(cat)}</span>`;
+  btn.addEventListener('click',()=>{
+    bankState.category = cat;
+    document.querySelectorAll('.bank-cat-btn').forEach(b=>b.classList.toggle('active', b.dataset.cat===cat));
+    renderBankView();
+  });
+  bankCatList.appendChild(btn);
+});
+
+function switchNav(mode){
+  if(mode==='bank'){
+    tabBank.classList.add('active'); tabCurriculum.classList.remove('active');
+    bankSidebar.style.display='block'; curriculumSidebar.style.display='none';
+    document.getElementById('topbarTitle').innerHTML = `Interview Bank <span class="muted">— System Design prep</span>`;
+    renderBankView();
+  } else {
+    tabCurriculum.classList.add('active'); tabBank.classList.remove('active');
+    curriculumSidebar.style.display='block'; bankSidebar.style.display='none';
+  }
+}
+tabCurriculum.addEventListener('click',()=>switchNav('curriculum'));
+tabBank.addEventListener('click',()=>switchNav('bank'));
+
+function filteredBankQuestions(){
+  const term = bankState.search.trim().toLowerCase();
+  return interviewBank.filter(q=>{
+    const matchesCat = bankState.category==='All' || q.category===bankState.category;
+    const matchesSearch = !term || q.question.toLowerCase().includes(term) || q.answer.toLowerCase().includes(term) || q.category.toLowerCase().includes(term);
+    return matchesCat && matchesSearch;
+  });
+}
+
+function roleChipsHTML(roles){
+  return (roles||[]).map(r=>{
+    const meta = ROLE_LABELS[r];
+    return meta ? `<span class="role-chip ${meta.cls}">${meta.label}</span>` : '';
+  }).join('');
+}
+
+function renderBankView(){
+  const list = filteredBankQuestions();
+  const headerLabel = bankState.category==='All' ? 'All Questions' : bankState.category;
+  contentInnerEl.innerHTML = `
+    <div class="ib-header-row">
+      <div class="ib-num-badge">${interviewBank.length}</div>
+      <div class="ib-header-text">
+        <h1>${escapeHtml(headerLabel)}</h1>
+        <p class="ib-subtitle">Click "Show answer" to reveal what MNC interviewers are really checking for. Role tags show which job track typically asks each question.</p>
+      </div>
+    </div>
+    <div class="ib-toolbar">
+      <input type="text" id="ibSearch" class="ib-search" placeholder="Search questions…" value="${escapeHtml(bankState.search)}">
+      <span class="ib-shown" id="ibShownCount">${list.length} shown</span>
+      <button class="ib-btn" id="ibRevealAll">Reveal all</button>
+      <button class="ib-btn" id="ibHideAll">Hide all</button>
+    </div>
+    <div id="ibCardsWrap"></div>
+  `;
+  renderBankCards(list);
+
+  const searchInput = document.getElementById('ibSearch');
+  searchInput.addEventListener('input', (e)=>{
+    bankState.search = e.target.value;
+    const filtered = filteredBankQuestions();
+    document.getElementById('ibShownCount').textContent = `${filtered.length} shown`;
+    renderBankCards(filtered);
+  });
+  document.getElementById('ibRevealAll').addEventListener('click', ()=>{
+    document.querySelectorAll('.ib-card').forEach(c=>{
+      c.querySelector('.ib-answer').classList.add('show');
+      c.querySelector('.ib-show-btn').textContent = 'Hide answer';
+    });
+  });
+  document.getElementById('ibHideAll').addEventListener('click', ()=>{
+    document.querySelectorAll('.ib-card').forEach(c=>{
+      c.querySelector('.ib-answer').classList.remove('show');
+      c.querySelector('.ib-show-btn').textContent = 'Show answer';
+    });
+  });
+}
+
+function renderBankCards(list){
+  const wrap = document.getElementById('ibCardsWrap');
+  if(!list.length){
+    wrap.innerHTML = `<div class="ib-empty">No questions match that search — try a different term or category.</div>`;
+    return;
+  }
+  wrap.innerHTML = list.map((q, i)=>`
+    <div class="ib-card">
+      <div class="ib-card-top">
+        <span class="ib-badge">${escapeHtml(q.category)}</span>
+        <span class="ib-num">#${i+1}</span>
+      </div>
+      <div class="ib-roles">${roleChipsHTML(q.roles)}</div>
+      <div class="ib-question">${escapeHtml(q.question)}</div>
+      <button class="ib-show-btn">Show answer</button>
+      <div class="ib-answer"><span class="key">What they're checking:</span> ${q.answer}</div>
+    </div>
+  `).join('');
+  wrap.querySelectorAll('.ib-show-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const answer = btn.nextElementSibling;
+      const showing = answer.classList.toggle('show');
+      btn.textContent = showing ? 'Hide answer' : 'Show answer';
+    });
+  });
+}
+
+/* ============ WHITEBOARD (plain, blank) ============ */
+const wbPanel = document.getElementById('wbPanel');
+const wbToggle = document.getElementById('wbToggle');
+const drawCanvas = document.getElementById('drawCanvas');
+const drawCtx = drawCanvas.getContext('2d');
+let DPR = window.devicePixelRatio || 1;
+let boardW=0, boardH=0;
+let strokes = [];
+let currentStroke = null;
+let currentColor = "#1c2430";
+let currentSize = 4;
+let eraseMode = false;
+
+function resizeCanvas(){
+  const rect = drawCanvas.parentElement.getBoundingClientRect();
+  boardW = rect.width; boardH = rect.height;
+  drawCanvas.width = boardW*DPR; drawCanvas.height = boardH*DPR;
+  drawCanvas.style.width = boardW+"px"; drawCanvas.style.height = boardH+"px";
+  drawCtx.setTransform(DPR,0,0,DPR,0,0);
+  redrawStrokes();
+}
+function redrawStrokes(){
+  drawCtx.clearRect(0,0,boardW,boardH);
+  strokes.forEach(paintStroke);
+}
+function paintStroke(s){
+  if(s.points.length<1) return;
+  drawCtx.globalCompositeOperation = s.erase ? "destination-out" : "source-over";
+  drawCtx.strokeStyle = s.color;
+  drawCtx.lineWidth = s.size;
+  drawCtx.lineJoin="round"; drawCtx.lineCap="round";
+  drawCtx.beginPath();
+  drawCtx.moveTo(s.points[0].x, s.points[0].y);
+  for(let i=1;i<s.points.length;i++) drawCtx.lineTo(s.points[i].x, s.points[i].y);
+  drawCtx.stroke();
+  drawCtx.globalCompositeOperation="source-over";
+}
+function getPos(e){
+  const rect=drawCanvas.getBoundingClientRect();
+  return {x:e.clientX-rect.left, y:e.clientY-rect.top};
+}
+drawCanvas.addEventListener('pointerdown',e=>{
+  drawCanvas.setPointerCapture(e.pointerId);
+  const p=getPos(e);
+  currentStroke={points:[p], color: eraseMode? "#000":currentColor, size: eraseMode? currentSize*5 : currentSize, erase:eraseMode};
+});
+drawCanvas.addEventListener('pointermove',e=>{
+  if(!currentStroke) return;
+  const p=getPos(e);
+  currentStroke.points.push(p);
+  paintStroke({points:currentStroke.points.slice(-3), color:currentStroke.color, size:currentStroke.size, erase:currentStroke.erase});
+});
+function endStroke(){
+  if(currentStroke && currentStroke.points.length>0) strokes.push(currentStroke);
+  currentStroke=null;
+}
+drawCanvas.addEventListener('pointerup',endStroke);
+drawCanvas.addEventListener('pointerleave',endStroke);
+drawCanvas.addEventListener('pointercancel',endStroke);
+
+document.getElementById('colorGroup').addEventListener('click',e=>{
+  const sw = e.target.closest('.swatch');
+  if(!sw) return;
+  document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('selected'));
+  sw.classList.add('selected');
+  currentColor = sw.dataset.color;
+  eraseMode=false;
+  document.getElementById('eraserBtn').classList.remove('active');
+});
+document.getElementById('sizeRange').addEventListener('input',e=>{ currentSize=parseInt(e.target.value); });
+document.getElementById('eraserBtn').addEventListener('click',e=>{
+  eraseMode=!eraseMode;
+  e.target.classList.toggle('active',eraseMode);
+});
+document.getElementById('undoBtn').addEventListener('click',()=>{ strokes.pop(); redrawStrokes(); });
+document.getElementById('clearBtn').addEventListener('click',()=>{ strokes=[]; redrawStrokes(); });
+
+const wbResizeHandle = document.getElementById('wbResizeHandle');
+
+wbToggle.addEventListener('click',()=>{
+  const willOpen = !wbPanel.classList.contains('open');
+  wbPanel.classList.toggle('open', willOpen);
+  wbResizeHandle.classList.toggle('active', willOpen);
+  if(!willOpen) wbPanel.style.width = ''; // drop any custom drag width, revert to closed
+  wbToggle.textContent = willOpen ? "🖊 Close Whiteboard" : "🖊 Open Whiteboard";
+  if(willOpen) setTimeout(resizeCanvas, 240);
+});
+window.addEventListener('resize', ()=>{ if(wbPanel.classList.contains('open')) resizeCanvas(); });
+
+/* ============ DRAG-TO-RESIZE (whiteboard <-> content) ============ */
+let isResizingWB = false;
+wbResizeHandle.addEventListener('pointerdown', (e)=>{
+  if(!wbPanel.classList.contains('open')) return;
+  isResizingWB = true;
+  wbPanel.classList.add('resizing');
+  wbResizeHandle.classList.add('dragging');
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+  e.preventDefault();
+});
+window.addEventListener('pointermove', (e)=>{
+  if(!isResizingWB) return;
+  const appRect = document.querySelector('.app').getBoundingClientRect();
+  const minW = 280;                 // whiteboard never smaller than this
+  const maxW = appRect.width - 340; // leave content + sidebar at least this much room
+  let newWidth = appRect.right - e.clientX;
+  newWidth = Math.max(minW, Math.min(maxW, newWidth));
+  wbPanel.style.width = newWidth + 'px';
+  resizeCanvas();
+});
+window.addEventListener('pointerup', ()=>{
+  if(!isResizingWB) return;
+  isResizingWB = false;
+  wbPanel.classList.remove('resizing');
+  wbResizeHandle.classList.remove('dragging');
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+});
+
+/* init */
+/* ============ PROJECTS ============ */
+const projects = [
+  // -- Industry --
+  { name:"HIA (Health Insights Agent)", cat:"industry", tag:"Healthcare", fw:null, level:"intermediate", desc:"Analyses medical reports and provides health insights." },
+  { name:"AI Health Assistant", cat:"industry", tag:"Healthcare", fw:null, level:"advanced", desc:"Diagnoses and monitors diseases using patient data." },
+  { name:"Automated Trading Bot", cat:"industry", tag:"Finance", fw:null, level:"advanced", desc:"Automates stock trading with real-time market analysis." },
+  { name:"Virtual AI Tutor", cat:"industry", tag:"Education", fw:null, level:"intermediate", desc:"Provides personalized education tailored to individual users." },
+  { name:"24/7 AI Chatbot", cat:"industry", tag:"Customer Service", fw:"LangGraph", level:"beginner", desc:"Handles customer support queries around the clock." },
+  { name:"Product Recommendation Agent", cat:"industry", tag:"Retail", fw:null, level:"advanced", desc:"Suggests products based on user preferences and history." },
+  { name:"Legal Document Review Assistant", cat:"industry", tag:"Legal", fw:null, level:"intermediate", desc:"Automates document review and highlights key clauses." },
+  { name:"Recruitment Recommendation Agent", cat:"industry", tag:"Human Resources", fw:null, level:"intermediate", desc:"Suggests best-fit candidates for open job roles." },
+  { name:"Virtual Travel Assistant", cat:"industry", tag:"Hospitality", fw:null, level:"beginner", desc:"Plans travel itineraries based on personal preferences." },
+  { name:"Real-Time Threat Detection Agent", cat:"industry", tag:"Cybersecurity", fw:null, level:"advanced", desc:"Identifies potential security threats and helps mitigate attacks." },
+  { name:"E-commerce Personal Shopper", cat:"industry", tag:"E-commerce", fw:null, level:"beginner", desc:"Helps customers find products they'll actually love." },
+  { name:"Logistics Optimization Agent", cat:"industry", tag:"Supply Chain", fw:null, level:"advanced", desc:"Plans efficient delivery routes and manages inventory." },
+
+  // -- CrewAI --
+  { name:"Email Auto Responder Flow", cat:"crewai", tag:"Communication", fw:"CrewAI", level:"beginner", desc:"Automates email responses based on predefined criteria." },
+  { name:"Marketing Strategy Generator", cat:"crewai", tag:"Marketing", fw:"CrewAI", level:"intermediate", desc:"Develops marketing strategy by analyzing market trends." },
+  { name:"Stock Analysis Tool", cat:"crewai", tag:"Finance", fw:"CrewAI", level:"intermediate", desc:"Provides tooling for analyzing stock market data." },
+  { name:"Trip Planner", cat:"crewai", tag:"Travel", fw:"CrewAI", level:"beginner", desc:"Assists in planning trips with full itineraries." },
+  { name:"Recruitment Workflow", cat:"crewai", tag:"Recruitment", fw:"CrewAI", level:"intermediate", desc:"Streamlines recruitment by automating hiring tasks." },
+
+  // -- AutoGen --
+  { name:"Auto Feedback From Code Execution", cat:"autogen", tag:"Software Dev", fw:"AutoGen", level:"intermediate", desc:"Automated task-solving via generating, executing, and debugging code." },
+  { name:"Group Chat (3 members, 1 manager)", cat:"autogen", tag:"Collaboration", fw:"AutoGen", level:"beginner", desc:"Demonstrates group task-solving via multi-agent collaboration." },
+  { name:"Natural Language to SQL Query", cat:"autogen", tag:"Databases", fw:"AutoGen", level:"intermediate", desc:"Converts plain-language questions into SQL queries." },
+  { name:"Multimodal Agent with DALLE + GPT-4V", cat:"autogen", tag:"Multimedia", fw:"AutoGen", level:"advanced", desc:"Combines DALLE and GPT-4V for multimodal agent conversations." },
+  { name:"AgentEval: Multi-Agent Assessment", cat:"autogen", tag:"Evaluation", fw:"AutoGen", level:"advanced", desc:"Framework for evaluating the utility of LLM-based applications." },
+
+  // -- Agno --
+  { name:"Finance Agent (Thinking)", cat:"agno", tag:"Finance", fw:"Agno", level:"intermediate", desc:"Real-time stock insights and analyst recommendations." },
+  { name:"Research Scholar Agent", cat:"agno", tag:"Education", fw:"Agno", level:"intermediate", desc:"Advanced academic search, publication analysis, structured reports." },
+  { name:"Legal Document Analysis Agent", cat:"agno", tag:"Legal Tech", fw:"Agno", level:"advanced", desc:"Analyzes legal PDFs and surfaces insights via vector embeddings." },
+  { name:"Shopping Partner Agent", cat:"agno", tag:"E-commerce", fw:"Agno", level:"beginner", desc:"Recommends products based on preference across marketplaces." },
+  { name:"YouTube Agent", cat:"agno", tag:"Media", fw:"Agno", level:"beginner", desc:"Analyzes YouTube videos for summaries, timestamps, and themes." },
+
+  // -- LangGraph --
+  { name:"Customer Support Agent", cat:"langgraph", tag:"Customer Support", fw:"LangGraph", level:"intermediate", desc:"Graph-based agent for handling customer inquiries end to end." },
+  { name:"Multi-Agent Supervisor", cat:"langgraph", tag:"Orchestration", fw:"LangGraph", level:"advanced", desc:"A supervisor agent orchestrating several specialized sub-agents." },
+  { name:"Agentic RAG", cat:"langgraph", tag:"Retrieval", fw:"LangGraph", level:"advanced", desc:"Agent decides the best retrieval strategy before generating a response." },
+  { name:"Corrective RAG (CRAG)", cat:"langgraph", tag:"Retrieval", fw:"LangGraph", level:"advanced", desc:"Evaluates and refines retrieved documents before generating an answer." },
+  { name:"SQL Agent", cat:"langgraph", tag:"Databases", fw:"LangGraph", level:"intermediate", desc:"Answers natural-language questions about a SQL database." },
+];
+
+function renderProjects(){
+  const grid = document.getElementById('projGrid');
+  const cat = document.querySelector('.proj-filter-btn[data-cat].active').dataset.cat;
+  const level = document.querySelector('.proj-filter-btn[data-level].active').dataset.level;
+  const list = projects.filter(p =>
+    (cat === 'all' || p.cat === cat) && (level === 'all' || p.level === level)
+  );
+  const repoBase = "https://github.com/aiwithviveka/500-AI-Agents-Projects";
+  const anchorByCat = {
+    industry:"-industry-use-cases",
+    crewai:"crewai",
+    autogen:"autogen",
+    agno:"agno",
+    langgraph:"langgraph",
+  };
+  const levelLabel = { beginner:"Beginner", intermediate:"Intermediate", advanced:"Advanced" };
+  grid.innerHTML = list.length ? list.map(p => `
+    <div class="proj-card">
+      <div class="pc-top">
+        <h4>${p.name}</h4>
+        <span class="pc-industry">${p.tag}</span>
+      </div>
+      <p>${p.desc}</p>
+      <div class="pc-meta-row">
+        <span class="pc-level ${p.level}">${levelLabel[p.level]}</span>
+        ${p.fw ? `<span class="pc-fw">${p.fw}</span>` : ``}
+      </div>
+      <a class="pc-link" href="${repoBase}#${anchorByCat[p.cat]}" target="_blank" rel="noopener">View on GitHub ↗</a>
+    </div>
+  `).join("") : `<p style="color:var(--text-dim);font-size:13px;">No projects match this combination yet.</p>`;
+}
+document.querySelectorAll('.proj-filter-btn[data-cat]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.proj-filter-btn[data-cat]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderProjects();
+  });
+});
+document.querySelectorAll('.proj-filter-btn[data-level]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.proj-filter-btn[data-level]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderProjects();
+  });
+});
+renderProjects();
+
+/* ============ NAV COLLAPSE ============ */
+document.getElementById('navToggleBtn').addEventListener('click', ()=>{
+  document.querySelector('.top-nav').classList.toggle('nav-collapsed');
+});
+
+/* ============ MEGA-DROPDOWN NAV (Learn / Projects / Community / About) ============ */
+/* Nested "Mentorship" flyout inside the Projects panel — toggles open/closed,
+   never navigates, and doesn't close the parent Projects panel when clicked. */
+document.querySelectorAll('.tn-dd-subtoggle').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    const sub = btn.closest('.has-sub');
+    const wasOpen = sub.classList.contains('sub-open');
+    document.querySelectorAll('.has-sub.sub-open').forEach(s=> s.classList.remove('sub-open'));
+    if(!wasOpen) sub.classList.add('sub-open');
+  });
+});
+document.querySelectorAll('.tn-dd-toggle').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const dropdown = btn.closest('.tn-dropdown');
+    const wasOpen = dropdown.classList.contains('open');
+    document.querySelectorAll('.tn-dropdown.open').forEach(d=> d.classList.remove('open'));
+    if(!wasOpen) dropdown.classList.add('open');
+  });
+});
+/* Clicking a menu leaf item closes the panel. If it points to a real section on
+   THIS page (href starting with #), smooth-scroll to it ourselves so the jump
+   isn't an abrupt browser anchor-jump. If it points to another page (.html),
+   let the browser navigate normally. */
+document.querySelectorAll('.tn-dd-item').forEach(item=>{
+  item.addEventListener('click', (e)=>{
+    document.querySelectorAll('.tn-dropdown.open').forEach(d=> d.classList.remove('open'));
+    const href = item.getAttribute('href') || '';
+    if(href.startsWith('#')){
+      const target = document.querySelector(href);
+      if(target){
+        e.preventDefault();
+        const navH = document.querySelector('.top-nav').offsetHeight;
+        const top = target.getBoundingClientRect().top + window.pageYOffset - navH - 12;
+        window.scrollTo({ top, behavior:'smooth' });
+      }
+    }
+  });
+});
+/* Click outside any dropdown closes whatever is open. */
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.tn-dropdown')){
+    document.querySelectorAll('.tn-dropdown.open').forEach(d=> d.classList.remove('open'));
+  }
+});
+/* Esc closes an open dropdown. */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape'){
+    document.querySelectorAll('.tn-dropdown.open').forEach(d=> d.classList.remove('open'));
+  }
+});
+
+/* ============ SERIES COLLAPSE (sidebar accordion) ============ */
+document.querySelectorAll('.series-head').forEach(head=>{
+  head.addEventListener('click', ()=>{
+    head.closest('.part-block').classList.toggle('collapsed');
+  });
+});
+
+selectTopic(topics[0], listI.children[0]);
+wbToggle.click(); // open by default
+</script>
+</body>
+</html>
