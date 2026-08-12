@@ -103,7 +103,7 @@ A curated tour of real, open-source AI agent implementations — browse by indus
 **Filters available:** `All` · `By Industry` · `CrewAI` · `AutoGen` · `Agno` · `LangGraph`
 **Levels:** `Beginner` · `Intermediate` · `Advanced`
 
-> Curated from [Ashish Patel's 500 AI Agents Projects](https://github.com/ashishpatel26/500-AI-Agents-Projects) — a much bigger collection (500+) lives there if you want to keep exploring.
+> Curated from [Viveka Sharma's 500 AI Agents Projects](https://github.com/aiwithviveka/500-AI-Agents-Projects) — a much bigger collection (500+) lives there if you want to keep exploring.
 
 ---
 
